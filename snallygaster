@@ -286,6 +286,30 @@ def test_sftp_config(url):
 
 
 @DEFAULT
+def test_wsftp_ini(url):
+    for fn in ["WS_FTP.ini", "ws_ftp.ini", "WS_FTP.INI"]:
+        r = fetcher(url + "/" + fn)
+        if '[_config_]' in r:
+            pout("wsftp_ini", url + "/" + fn)
+
+
+@DEFAULT
+def test_filezilla_xml(url):
+    for fn in ["filezilla.xml", "sitemanager.xml", "FileZilla.xml"]:
+        r = fetcher(url + "/" + fn)
+        if '<FileZilla' in r:
+            pout("filezilla_xml", url + "/" + fn)
+
+
+@DEFAULT
+def test_winscp_ini(url):
+    for fn in ["winscp.ini", "WinSCP.ini"]:
+        r = fetcher(url + "/" + fn)
+        if '[Configuration]' in r:
+            pout("winscp_ini", "%s/%s" % (url, fn))
+
+
+@DEFAULT
 def test_ds_store(url):
     r = fetcher(url + '/.DS_Store', binary=True)
     if r[0:8] == b'\x00\x00\x00\x01Bud1':
@@ -357,6 +381,13 @@ def test_drupal_backup_migrate(url):
 
 
 @DEFAULT
+def test_magento_config(url):
+    r = fetcher(url + '/app/etc/local.xml')
+    if '<config' in r and 'Mage' in r:
+        pout("magento_config", url + "/app/etc/local.xml")
+
+
+@DEFAULT
 def test_xaa(url):
     r, s = partial(url + "/xaa", 4000, returnsize=True, binary=True)
     if r is None:
@@ -373,13 +404,6 @@ def test_xaa(url):
        r[0:4] == b'\x28\xB5\x2F\xFD' or
        r[0:4] == b'PK\x03\x04'):
         pout("xaa", url + "/xaa")
-
-
-@DEFAULT
-def test_magento_config(url):
-    r = fetcher(url + '/app/etc/local.xml')
-    if '<config' in r and 'Mage' in r:
-        pout("magento_config", url + "/app/etc/local.xml")
 
 
 @DEFAULT
@@ -404,30 +428,6 @@ def test_optionsbleed(url):
         pout("options_spaces", url, escape(allow))
     else:
         pout("optionsbleed", url, escape(allow))
-
-
-@DEFAULT
-def test_wsftp_ini(url):
-    for fn in ["WS_FTP.ini", "ws_ftp.ini", "WS_FTP.INI"]:
-        r = fetcher(url + "/" + fn)
-        if '[_config_]' in r:
-            pout("wsftp_ini", url + "/" + fn)
-
-
-@DEFAULT
-def test_filezilla_xml(url):
-    for fn in ["filezilla.xml", "sitemanager.xml", "FileZilla.xml"]:
-        r = fetcher(url + "/" + fn)
-        if '<FileZilla' in r:
-            pout("filezilla_xml", url + "/" + fn)
-
-
-@DEFAULT
-def test_winscp_ini(url):
-    for fn in ["winscp.ini", "WinSCP.ini"]:
-        r = fetcher(url + "/" + fn)
-        if '[Configuration]' in r:
-            pout("winscp_ini", "%s/%s" % (url, fn))
 
 
 @DEFAULT

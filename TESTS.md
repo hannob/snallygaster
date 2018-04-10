@@ -190,7 +190,7 @@ Checks for private keys, usually belonging to TLS/X.509 certificates.
 sshkey
 ------
 
-Similar to the privatekey check this looks for SSH privae keys on web servers.
+Similar to the privatekey check this looks for SSH private keys on web servers.
 
 
 dotenv

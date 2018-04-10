@@ -257,6 +257,14 @@ def test_svn_dir(url):
 
 
 @DEFAULT
+def test_cvs_dir(url):
+    r = fetcher(url + '/CVS/Root')
+    # this is a bit hacky, but should be good enough to avoid FPs
+    if len(r.split("\n")) == 2 and ':' in r and '<' not in r:
+        pout("cvs_dir", url + "/CVS/Root")
+
+
+@DEFAULT
 def test_apache_server_status(url):
     r = fetcher(url + '/server-status')
     if 'Apache Status' in r:
@@ -275,14 +283,6 @@ def test_sftp_config(url):
     r = fetcher(url + '/sftp-config.json')
     if '"type":' in r and 'ftp' in r:
         pout("sftp_config", url + "/sftp-config.json")
-
-
-@DEFAULT
-def test_cvs_dir(url):
-    r = fetcher(url + '/CVS/Root')
-    # this is a bit hacky, but should be good enough to avoid FPs
-    if len(r.split("\n")) == 2 and ':' in r and '<' not in r:
-        pout("cvs_dir", url + "/CVS/Root")
 
 
 @DEFAULT

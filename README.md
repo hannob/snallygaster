@@ -19,6 +19,10 @@ about the issues.
 faq
 ===
 
+Q: I want to contribute / send a patch / a pull request!
+
+A: That's great, but please read the [CONTRIBUTIONS.md](CONTRIBUTIONS.md) file.
+
 Q: What's that name?
 
 A: [Snallygaster](https://en.wikipedia.org/wiki/Snallygaster) is the name of a dragon that

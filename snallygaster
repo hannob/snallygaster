@@ -1,0 +1,663 @@
+#!/usr/bin/env python3
+
+# Dependencies:
+# * Python 3
+# * urllib3 (for HTTP requests with Keep Alive support)
+# * beautifulsoup (for HTML parsing)
+# * dnspython (for DNS queries)
+
+
+import argparse
+import sys
+import ssl
+import random
+import string
+import re
+import socket
+import urllib.parse
+import warnings
+
+import bs4
+import dns.resolver
+import dns.query
+import dns.zone
+import urllib3
+
+
+STANDARD_PHP_FILES = ['index.php', 'wp-config.php', 'configuration.php',
+                      'config.php', 'config.inc.php', 'settings.php']
+
+
+# initializing global state variables
+global_what404 = {}
+duplicate_preventer = []
+mainpage_cache = {}
+dns_cache = {}
+
+# This prevents BeautifulSoup from causing warnings when the
+# content of a webpage looks suspicious, i.e. when it only
+# contains a single URL or a filename.
+warnings.filterwarnings("ignore", category=UserWarning, module='bs4')
+
+# This disables warnings about the lack of certificate verification.
+# Usually this is a bad idea, but for this tool we want to find HTTPS leaks
+# even if they are shipped with invalid certificates.
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+
+def DEFAULT(f):
+    setattr(f, '_is_default_test', True)
+    return f
+
+
+def INFO(f):
+    setattr(f, '_is_info_test', True)
+    return f
+
+
+def HOSTNAME(f):
+    setattr(f, '_is_hostname_test', True)
+    return f
+
+
+def pdebug(msg):
+    if args.debug:
+        print("[[debug]] %s" % msg)
+
+
+def pout(cause, url, misc="", noisymsg=False):
+    if noisymsg and not args.noisy:
+        return
+    # we're storing URL without protocol/www-prefix and cause to avoid
+    # duplicates on same host
+    dup_check = cause + "__" + re.sub(r'http[s]?://(www\.)?', '', url) + misc
+    if dup_check not in duplicate_preventer:
+        duplicate_preventer.append(dup_check)
+        if misc:
+            print("[%s] %s %s" % (cause, url, misc))
+        else:
+            print("[%s] %s" % (cause, url))
+
+
+def randstring():
+    return "".join(random.choice(string.ascii_lowercase) for i in range(8))
+
+
+def escape(msg):
+    return repr(msg)[1:-1]
+
+
+def fetcher(fullurl, binary=False):
+    try:
+        r = poolmanager.request('GET', fullurl, retries=False,
+                                redirect=False)
+        if r.status == 200:
+            if binary:
+                return r.data
+            return r.data.decode('ascii', errors='ignore')
+        return ""
+    except (urllib3.exceptions.HTTPError, UnicodeError,
+            ConnectionRefusedError, ssl.SSLError):
+        return ""
+
+
+def partial(fullurl, size, returnsize=False, binary=False):
+    try:
+        r = poolmanager.request('GET', fullurl, retries=False,
+                                redirect=False, preload_content=False)
+        if r.status == 200:
+            ret = r.read(size)
+            if binary:
+                rv = ret
+            else:
+                rv = ret.decode('ascii', errors='ignore')
+            if returnsize:
+                size = r.headers.getlist('content-length')
+                if size == []:
+                    size = 0
+                else:
+                    size = int(size[0])
+                r.release_conn()
+                return (rv, size)
+            r.release_conn()
+            return rv
+        r.release_conn()
+    except (urllib3.exceptions.HTTPError, UnicodeError,
+            ConnectionRefusedError, ssl.SSLError):
+        pass
+    if returnsize:
+        return ("", 0)
+    return ""
+
+
+def check404(url):
+    if url in global_what404:
+        return global_what404[url]
+    rndurl = url + "/" + randstring() + ".htm"
+
+    pdebug("checking 404 page state of %s" % rndurl)
+    try:
+        r = poolmanager.request('GET', rndurl, retries=False,
+                                redirect=False)
+    except (urllib3.exceptions.HTTPError, UnicodeError,
+            ConnectionRefusedError, ssl.SSLError):
+        return False
+    what404 = {}
+    what404['state'] = (r.status != 200)
+    what404['content'] = r.data.decode('ascii', errors='ignore')
+    if any(m in what404['content'] for m in ['<?php', '<?=']):
+        # we're getting php code for 404 pages
+        pout("errorpage_with_php", rndurl)
+        what404['php'] = True
+    else:
+        what404['php'] = False
+    if 'INSERT INTO' in what404['content']:
+        # we're getting sql code for 404 pages
+        pout("errorpage_with_sql", rndurl)
+        what404['sql'] = True
+    else:
+        what404['sql'] = False
+
+    global_what404[url] = what404
+    return what404
+
+
+def getmainpage(url):
+    if url in mainpage_cache:
+        return mainpage_cache[url]['content']
+
+    try:
+        r = poolmanager.request('GET', url, retries=False,
+                                redirect=True)
+        if r.status == 200:
+            data = r.data.decode('ascii', errors='ignore')
+        else:
+            data = ""
+        headers = {k.lower(): v for k, v in r.headers.items()}
+        if 'location' in headers:
+            redir = headers['location']
+        else:
+            redir = ""
+    except (urllib3.exceptions.HTTPError, UnicodeError,
+            ConnectionRefusedError, ssl.SSLError):
+        mainpage_cache[url] = {}
+        mainpage_cache[url]['httpcode'] = 0
+        mainpage_cache[url]['location'] = ""
+        mainpage_cache[url]['content'] = ""
+        return ""
+
+    mainpage_cache[url] = {}
+    mainpage_cache[url]['httpcode'] = r.status
+    mainpage_cache[url]['location'] = redir
+    mainpage_cache[url]['content'] = data
+    return data
+
+
+def dnscache(qhost):
+    if qhost in dns_cache:
+        return dns_cache[qhost]
+    try:
+        socket.inet_aton(qhost)
+        dns_cache[qhost] = qhost
+        return qhost
+    except socket.error:
+        pass
+    try:
+        dnsanswer = dns.resolver.query(qhost, 'A')
+    except (dns.exception.DNSException, ConnectionResetError):
+        dns_cache[qhost] = None
+        return None
+    dns_cache[qhost] = dnsanswer.rrset
+    return dnsanswer.rrset
+
+
+@DEFAULT
+def test_lfm_php(url):
+    r = fetcher(url + '/lfm.php')
+    if 'Lazy File Manager' in r:
+        pout("lfm_php", url + "/lfm.php")
+
+
+@DEFAULT
+def test_idea(url):
+    r = fetcher(url + '/.idea/WebServers.xml')
+    if 'name="WebServers"' in r:
+        pout("idea", url + "/.idea/WebServers.xml")
+
+
+@DEFAULT
+def test_symphony_databases_yml(url):
+    r = fetcher(url + '/config/databases.yml')
+    if 'class:' in r and 'param:' in r:
+        pout("symphony_databases_yml", url + "/config/databases.yml")
+
+
+@DEFAULT
+def test_rails_database_yml(url):
+    r = fetcher(url + '/config/database.yml')
+    if 'adapter:' in r and 'database:' in r:
+        pout("rails_database_yml", url + "/config/database.yml")
+
+
+@DEFAULT
+def test_git_dir(url):
+    r = fetcher(url + '/.git/config')
+    if '[core]' in r:
+        pout("git_dir", url + "/.git/config")
+
+
+@DEFAULT
+def test_svn_dir(url):
+    r = fetcher(url + '/.svn/entries')
+    try:
+        if (str)((int)(r)) + "\n" == r:
+            pout("svn_dir", url + "/.svn/entries")
+    except ValueError:
+        pass
+
+
+@DEFAULT
+def test_apache_server_status(url):
+    r = fetcher(url + '/server-status')
+    if 'Apache Status' in r:
+        pout("apache_server_status", url + "/server-status")
+
+
+@DEFAULT
+def test_coredump(url):
+    r = partial(url + "/core", 20, binary=True)
+    if r and r[0:4] == b'\x7fELF':
+        pout("coredump", url + "/core")
+
+
+@DEFAULT
+def test_sftp_config(url):
+    r = fetcher(url + '/sftp-config.json')
+    if '"type":' in r and 'ftp' in r:
+        pout("sftp_config", url + "/sftp-config.json")
+
+
+@DEFAULT
+def test_cvs_dir(url):
+    r = fetcher(url + '/CVS/Root')
+    # this is a bit hacky, but should be good enough to avoid FPs
+    if len(r.split("\n")) == 2 and ':' in r and '<' not in r:
+        pout("cvs_dir", url + "/CVS/Root")
+
+
+@DEFAULT
+def test_ds_store(url):
+    r = fetcher(url + '/.DS_Store', binary=True)
+    if r[0:8] == b'\x00\x00\x00\x01Bud1':
+        pout("ds_store", url + "/.DS_Store")
+
+
+@DEFAULT
+def test_backupfiles(url):
+    what404 = check404(url)
+    if not what404:
+        return
+    if what404['php'] and not what404['state']:
+        # we don't get proper 404 replies and the default page contains PHP
+        # code, check doesn't make sense.
+        return
+    for f in STANDARD_PHP_FILES:
+        for ps in ['_FILE_.bak', '_FILE_~', '._FILE_.swp', '%23_FILE_%23']:
+            furl = url + "/" + ps.replace('_FILE_', f)
+            r = fetcher(furl)
+            if any(m in r for m in ['<?php', '<?=']):
+                pout("backup_files", furl)
+
+
+@DEFAULT
+def test_deadjoe(url):
+    r = fetcher(url + '/DEADJOE')
+    if 'in JOE when it aborted' in r:
+        pout("deadjoe", url + "/DEADJOE")
+
+
+@DEFAULT
+def test_sql_dump(url):
+    what404 = check404(url)
+    if not what404:
+        return
+    for f in ['dump.sql', 'database.sql', '1.sql', 'backup.sql', 'data.sql',
+              'db_backup.sql', 'dbdump.sql', 'db.sql', 'localhost.sql',
+              'mysql.sql', 'site.sql', 'sql.sql', 'temp.sql', 'users.sql',
+              'translate.sql', 'mysqldump.sql']:
+        if not what404['sql'] or what404['state']:
+            # if we don't get proper 404 replies and the default page contains
+            # SQL code, check doesn't make sense.
+            r = partial(url + "/" + f, 4000)
+            if any(m in r for m in ['INSERT INTO']):
+                pout("sql_dump", url + "/" + f)
+        r = partial(url + "/" + f + ".gz", 3, binary=True)
+        if r == b'\x1f\x8b\x08':
+            pout("sql_dump_gz", url + "/" + f + ".gz")
+        r = partial(url + "/" + f + ".bz2", 3, binary=True)
+        if r == b'BZh' or r == b'BZ0':
+            pout("sql_dump_bz", url + "/" + f + ".bz2")
+        r = partial(url + "/" + f + ".xz", 6, binary=True)
+        if r == b'\xFD7zXZ\x00':
+            pout("sql_dump_xz", url + "/" + f + ".xz")
+
+
+@DEFAULT
+def test_bitcoin_wallet(url):
+    r = partial(url + "/wallet.dat", 16, binary=True)
+    if r and len(r) == 16 and r[12:] == b'b1\x05\x00':
+        pout("bitcoin_wallet", url + "/wallet.dat")
+
+
+@DEFAULT
+def test_drupal_backup_migrate(url):
+    r = fetcher(url + '/sites/default/private/files/backup_migrate/scheduled/test.txt')
+    if 'this file should not be publicly accessible' in r:
+        pout("drupal_backup_migrate", url + "/sites/default/private/files/backup_migrate/scheduled/test.txt")
+
+
+@DEFAULT
+def test_xaa(url):
+    r, s = partial(url + "/xaa", 4000, returnsize=True, binary=True)
+    if r is None:
+        return
+    # we need some heuristics here to avoid false positives.
+    # If output is larger than 10 MB it's likely a true positive.
+    if s > 10000000:
+        pout("xaa", url + "/xaa")
+        return
+    # Check for signs of common compression formats (gz, bzip2, xz, zstd, zip).
+    if (r[0:3] == b'\x1f\x8b\x08' or
+       r[0:3] == b'BZh' or r[0:3] == b'BZ0' or
+       r[0:6] == b'\xFD7zXZ\x00' or
+       r[0:4] == b'\x28\xB5\x2F\xFD' or
+       r[0:4] == b'PK\x03\x04'):
+        pout("xaa", url + "/xaa")
+
+
+@DEFAULT
+def test_magento_config(url):
+    r = fetcher(url + '/app/etc/local.xml')
+    if '<config' in r and 'Mage' in r:
+        pout("magento_config", url + "/app/etc/local.xml")
+
+
+@DEFAULT
+def test_optionsbleed(url):
+    try:
+        r = poolmanager.request('OPTIONS', url, retries=False,
+                                redirect=False)
+    except (ConnectionRefusedError, urllib3.exceptions.HTTPError,
+            UnicodeError):
+        return
+    try:
+        allow = str(r.headers["Allow"])
+    except KeyError:
+        return
+    if allow == "":
+        pout("options_empty", url, noisymsg=True)
+    elif re.match("^[a-zA-Z]+(-[a-zA-Z]+)? *(, *[a-zA-Z]+(-[a-zA-Z]+)? *)*$", allow):
+        z = [x.strip() for x in allow.split(',')]
+        if len(z) > len(set(z)):
+            pout("options_duplicates", url, escape(allow), noisymsg=True)
+    elif re.match("^[a-zA-Z]+(-[a-zA-Z]+)? *( +[a-zA-Z]+(-[a-zA-Z]+)? *)+$", allow):
+        pout("options_spaces", url, escape(allow))
+    else:
+        pout("optionsbleed", url, escape(allow))
+
+
+@DEFAULT
+def test_wsftp_ini(url):
+    for fn in ["WS_FTP.ini", "ws_ftp.ini", "WS_FTP.INI"]:
+        r = fetcher(url + "/" + fn)
+        if '[_config_]' in r:
+            pout("wsftp_ini", url + "/" + fn)
+
+
+@DEFAULT
+def test_filezilla_xml(url):
+    for fn in ["filezilla.xml", "sitemanager.xml", "FileZilla.xml"]:
+        r = fetcher(url + "/" + fn)
+        if '<FileZilla' in r:
+            pout("filezilla_xml", url + "/" + fn)
+
+
+@DEFAULT
+def test_winscp_ini(url):
+    for fn in ["winscp.ini", "WinSCP.ini"]:
+        r = fetcher(url + "/" + fn)
+        if '[Configuration]' in r:
+            pout("winscp_ini", "%s/%s" % (url, fn))
+
+
+@DEFAULT
+def test_privatekey(url):
+    hostkey = re.sub('^www.', '', re.sub('(.*//|/.*)', "", url)) + ".key"
+    wwwkey = "www." + hostkey
+    for fn in ["server.key", "privatekey.key", "myserver.key", "key.pem",
+               hostkey, wwwkey]:
+        r = fetcher(url + "/" + fn)
+        if 'BEGIN PRIVATE KEY' in r:
+            pout("privatekey_pkcs8", "%s/%s" % (url, fn))
+        if 'BEGIN RSA PRIVATE KEY' in r:
+            pout("privatekey_rsa", "%s/%s" % (url, fn))
+        if 'BEGIN DSA PRIVATE KEY' in r:
+            pout("privatekey_dsa", "%s/%s" % (url, fn))
+        if 'BEGIN EC PRIVATE KEY' in r:
+            pout("privatekey_ec", "%s/%s" % (url, fn))
+
+
+@DEFAULT
+def test_sshkey(url):
+    for fn in ["id_rsa", "id_dsa", ".ssh/id_rsa", ".ssh/id_dsa"]:
+        r = fetcher(url + "/" + fn)
+        if 'BEGIN PRIVATE KEY' in r:
+            pout("sshkey", "%s/%s" % (url, fn))
+        if 'BEGIN RSA PRIVATE KEY' in r:
+            pout("sshkey", "%s/%s" % (url, fn))
+        if 'BEGIN DSA PRIVATE KEY' in r:
+            pout("sshkey", "%s/%s" % (url, fn))
+
+
+@DEFAULT
+def test_dotenv(url):
+    r = fetcher(url + "/.env")
+    if "APP_ENV=" in r:
+        pout("dotenv", url + "/.env")
+
+
+@DEFAULT
+def test_invalidsrc(url):
+    r = getmainpage(url)
+    try:
+        p = bs4.BeautifulSoup(r, 'html.parser')
+    except NotImplementedError:
+        # This is due to a python bug, please remove in the future.
+        # https://bugs.python.org/issue32876
+        pdebug("can't parse due to python bug")
+        return
+    srcs = []
+    for tag in p.findAll(attrs={"src": True}):
+        srcs.append(tag['src'])
+    srcs = set(srcs)
+
+    checkeddomains = []
+    for src in srcs:
+        try:
+            realurl = urllib.parse.urljoin(url, src)
+            domain = urllib.parse.urlparse(realurl).hostname
+            protocol = urllib.parse.urlparse(realurl).scheme
+        except ValueError:
+            pout("invalidsrc_brokenurl", escape(url), src)
+            continue
+        if domain is None:
+            continue
+        if protocol not in ['https', 'http']:
+            continue
+
+        # We avoid double-checking multiple requests to the same host.
+        # This is a compromise between speed and in-depth scanning.
+        if domain in checkeddomains:
+            continue
+        checkeddomains.append(domain)
+        pdebug("checking url %s" % realurl)
+
+        if dnscache(domain) is None:
+            pout("invalidsrc_dns", url, escape(src))
+            continue
+
+        try:
+            r = poolmanager.request('GET', realurl, retries=False,
+                                    redirect=False)
+            if r.status >= 400:
+                pout("invalidsrc_http", url, escape(src))
+        except UnicodeEncodeError:
+            pass
+        except (ConnectionRefusedError, ConnectionResetError,
+                urllib3.exceptions.HTTPError):
+            pout("invalidsrc_http_connfail", url, escape(src))
+
+
+@DEFAULT
+def test_ilias_defaultpw(url):
+    getmainpage(url)
+    if (url + "/ilias.php" in mainpage_cache[url]['location'] or
+       (url + "/login.php" in mainpage_cache[url]['location'] and
+       'powered by ILIAS' in fetcher(mainpage_cache[url]['location']))):
+        # we're confident we found an ILIAS installation
+        pdebug("ilias found")
+        try:
+            login = poolmanager.request("POST", url + "/ilias.php?cmd=post&baseClass=ilStartUpGUI",
+                                        fields={'username': 'root',
+                                                'password': 'homer',
+                                                'cmd[doStandardAuthentication]': 'Login'},
+                                        headers={'Cookie': 'iltest=;PHPSESSID=' + randstring()})
+            data = login.data.decode('ascii', errors='ignore')
+            if (('class="ilFailureMessage"' not in data) and
+               ('name="il_message_focus"' not in data) and
+               (('class="ilBlockContent"' in data) or
+               ('class="ilAdminRow"' in data))):
+                pout("ilias_defaultpw", url, "root/homer")
+        except (ConnectionRefusedError, ConnectionResetError,
+                urllib3.exceptions.HTTPError):
+            pass
+
+
+@DEFAULT
+@HOSTNAME
+def test_axfr(qhost):
+    try:
+        ns = dns.resolver.query(qhost, 'NS')
+    except (dns.exception.DNSException, ConnectionResetError):
+        return
+    for r in ns.rrset:
+        r = str(r)
+        try:
+            axfr = dns.zone.from_xfr(dns.query.xfr(r, qhost))
+            if axfr:
+                pout("axfr", qhost, r)
+        except (dns.exception.DNSException, ConnectionResetError,
+                EOFError, socket.gaierror, ConnectionRefusedError,
+                TimeoutError, OSError):
+            pass
+
+
+@INFO
+def test_drupal(url):
+    r = fetcher(url + "/CHANGELOG.txt")
+    try:
+        if r != "":
+            result = re.findall("Drupal [0-9.]*", r)
+            version = result[0][7:]
+            pout("drupal", url, version)
+        r = fetcher(url + "/core/CHANGELOG.txt")
+        if r != "":
+            result = re.findall("Drupal [0-9.]*", r)
+            version = result[0][7:]
+            pout("drupal", url, version)
+    except IndexError:
+        pass
+
+
+def new_excepthook(etype, value, traceback):
+    if etype == KeyboardInterrupt:
+        pdebug("Interrupted by user...")
+        sys.exit(1)
+
+    print("Oh oh... an unhandled exception has happened. This shouldn't be.")
+    print("Please report a bug and include all output.")
+    print("")
+    print("called with")
+    print(" ".join(sys.argv))
+    print("")
+    sys.__excepthook__(etype, value, traceback)
+
+
+sys.excepthook = new_excepthook
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("hosts", nargs='*', help="hostname to scan")
+parser.add_argument("-t", "--tests", nargs=1,
+                    help="comma-separated tests to run.")
+parser.add_argument("--useragent", nargs=1,
+                    help="User agent to send")
+parser.add_argument("--nowww", action="store_true",
+                    help="skip scanning www.[host]")
+parser.add_argument("--nohttp", action="store_true",
+                    help="Don't scan http")
+parser.add_argument("--nohttps", action="store_true",
+                    help="Don't scan https")
+parser.add_argument("-i", "--info", action="store_true",
+                    help="Enable all info tests (no bugs/security vulnerabilities)")
+parser.add_argument("-n", "--noisy", action="store_true",
+                    help="show noisy messages that indicate boring bugs, but no security issue")
+parser.add_argument("-d", "--debug", action="store_true",
+                    help="show detailed debugging info")
+args = parser.parse_args()
+
+# Initializing global pool manager
+user_agent = {'user-agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0'}
+if args.useragent:
+    user_agent = {'user-agent': args.useragent[0]}
+poolmanager = urllib3.PoolManager(10, headers=user_agent)
+
+
+if args.tests is None:
+    tests = [g for f, g in locals().items() if hasattr(g, '_is_default_test')]
+else:
+    tests = []
+    try:
+        for x in args.tests[0].split(','):
+            tests.append(locals()["test_" + x])
+    except KeyError:
+        print("Test %s does not exist" % x)
+        sys.exit(1)
+
+if args.info:
+    tests += [g for f, g in locals().items() if hasattr(g, '_is_info_test')]
+
+hosts = list(args.hosts)
+if not args.nowww:
+    for h in args.hosts:
+        hosts.append("www." + h)
+
+for i, h in enumerate(hosts):
+    hosts[i] = h.encode("idna").decode("ascii")
+    if h != hosts[i]:
+        pdebug("Converted %s to %s" % (h, hosts[i]))
+
+pdebug("All hosts: %s" % ",".join(hosts))
+
+
+for host in hosts:
+    pdebug("Scanning %s" % host)
+    for test in tests:
+        pdebug("running %s test" % test.__name__)
+        if hasattr(test, '_is_hostname_test'):
+            test(host)
+        else:
+            if not args.nohttp:
+                test("http://" + host)
+            if not args.nohttps:
+                test("https://" + host)

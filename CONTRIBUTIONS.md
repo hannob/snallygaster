@@ -39,7 +39,7 @@ The code should produce no warnings with this command:
 
 ```
 pycodestyle --ignore=E501 snallygaster
-``'
+```
 
 
 New Tests

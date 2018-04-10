@@ -13,7 +13,7 @@ passwords or database dumps. In addition it contains a few checks for other secu
 As an introduction to these kinds of issues you may want to watch this talk:
 * [Attacking with HTTP Requests](https://www.youtube.com/watch?v=Bppr9rbmwz4)
 
-See the (TESTS.md)[TESTS.md] file for an overview of all tests and links to further information
+See the [TESTS.md](TESTS.md) file for an overview of all tests and links to further information
 about the issues.
 
 faq

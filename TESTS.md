@@ -131,8 +131,8 @@ The editor JOE creates a file DEADJOE on crashes, which contains content of the 
 Similar to backupfiles.
 
 
-sql_dumps
----------
+sql_dump
+--------
 
 This checks for common names of SQL database dumps. These can lead to massive database leaks.
 

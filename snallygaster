@@ -556,6 +556,19 @@ def test_cgiecho(url):
 
 
 @DEFAULT
+def test_phpunit_eval(url):
+    try:
+        r = poolmanager.request("POST", url + "/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php",
+                                body='<?php echo(substr_replace("hello", "12", 2, 2));')
+        data = r.data.decode('ascii', errors='ignore')
+        if data == "he12o":
+            pout("phpunit_eval", url + "/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php")
+    except (ConnectionRefusedError, ConnectionResetError,
+            urllib3.exceptions.HTTPError):
+        pass
+
+
+@DEFAULT
 @HOSTNAME
 def test_axfr(qhost):
     try:

@@ -231,6 +231,15 @@ string in square brackets (e.g. ['password']).
 * [Cgiemail - Source Code Disclosure/Local File Inclusion Exploit](https://github.com/finbar-crago/cgiemail-exploit)
 
 
+phpunit_eval
+------------
+
+Tests for a remote code execution vulnerability in a script shipped with older versions of phpunit
+that will simply pass the POST data to PHP's eval.
+
+* [CVE-2017-9841 RCE vulnerability in phpunit](http://phpunit.vulnbusters.com/)
+
+
 axfr
 ----
 

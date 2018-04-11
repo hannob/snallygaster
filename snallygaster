@@ -16,6 +16,7 @@ import re
 import socket
 import urllib.parse
 import warnings
+import json
 
 import bs4
 import dns.resolver
@@ -73,10 +74,13 @@ def pout(cause, url, misc="", noisymsg=False):
     dup_check = cause + "__" + re.sub(r'http[s]?://(www\.)?', '', url) + misc
     if dup_check not in duplicate_preventer:
         duplicate_preventer.append(dup_check)
-        if misc:
-            print("[%s] %s %s" % (cause, url, misc))
+        if args.json:
+            json_out.append({"cause": cause, "url": url, "misc": misc})
         else:
-            print("[%s] %s" % (cause, url))
+            if misc:
+                print("[%s] %s %s" % (cause, url, misc))
+            else:
+                print("[%s] %s" % (cause, url))
 
 
 def randstring():
@@ -637,6 +641,8 @@ parser.add_argument("-i", "--info", action="store_true",
                     help="Enable all info tests (no bugs/security vulnerabilities)")
 parser.add_argument("-n", "--noisy", action="store_true",
                     help="show noisy messages that indicate boring bugs, but no security issue")
+parser.add_argument("-j", "--json", action="store_true",
+                    help="produce JSON output")
 parser.add_argument("-d", "--debug", action="store_true",
                     help="show detailed debugging info")
 args = parser.parse_args()
@@ -675,6 +681,7 @@ for i, h in enumerate(hosts):
 pdebug("All hosts: %s" % ",".join(hosts))
 
 
+json_out=[]
 for host in hosts:
     pdebug("Scanning %s" % host)
     for test in tests:
@@ -686,3 +693,5 @@ for host in hosts:
                 test("http://" + host)
             if not args.nohttps:
                 test("https://" + host)
+if args.json:
+    print(json.dumps(json_out))

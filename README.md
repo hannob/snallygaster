@@ -16,6 +16,18 @@ As an introduction to these kinds of issues you may want to watch this talk:
 See the [TESTS.md](TESTS.md) file for an overview of all tests and links to further information
 about the issues.
 
+install
+=======
+
+snallygaster is available [via pypi](https://pypi.python.org/pypi/snallygaster):
+
+```
+pip3 install snallygaster
+```
+
+It's a simple python 3 script, so you can just download the file "snallygaster"
+and execute it. Dependencies are urllib3, beautifulsoup4 and dnspython.
+
 faq
 ===
 

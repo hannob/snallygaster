@@ -105,7 +105,7 @@ def fetcher(fullurl, binary=False):
         return ""
 
 
-def partial(fullurl, size, returnsize=False, binary=False):
+def fetchpartial(fullurl, size, returnsize=False, binary=False):
     try:
         r = poolmanager.request('GET', fullurl, retries=False,
                                 redirect=False, preload_content=False)
@@ -277,7 +277,7 @@ def test_apache_server_status(url):
 
 @DEFAULT
 def test_coredump(url):
-    r = partial(url + "/core", 20, binary=True)
+    r = fetchpartial(url + "/core", 20, binary=True)
     if r and r[0:4] == b'\x7fELF':
         pout("coredump", url + "/core")
 
@@ -356,23 +356,23 @@ def test_sql_dump(url):
         if not what404['sql'] or what404['state']:
             # if we don't get proper 404 replies and the default page contains
             # SQL code, check doesn't make sense.
-            r = partial(url + "/" + f, 4000)
+            r = fetchpartial(url + "/" + f, 4000)
             if any(m in r for m in ['INSERT INTO']):
                 pout("sql_dump", url + "/" + f)
-        r = partial(url + "/" + f + ".gz", 3, binary=True)
+        r = fetchpartial(url + "/" + f + ".gz", 3, binary=True)
         if r == b'\x1f\x8b\x08':
             pout("sql_dump_gz", url + "/" + f + ".gz")
-        r = partial(url + "/" + f + ".bz2", 3, binary=True)
+        r = fetchpartial(url + "/" + f + ".bz2", 3, binary=True)
         if r == b'BZh' or r == b'BZ0':
             pout("sql_dump_bz", url + "/" + f + ".bz2")
-        r = partial(url + "/" + f + ".xz", 6, binary=True)
+        r = fetchpartial(url + "/" + f + ".xz", 6, binary=True)
         if r == b'\xFD7zXZ\x00':
             pout("sql_dump_xz", url + "/" + f + ".xz")
 
 
 @DEFAULT
 def test_bitcoin_wallet(url):
-    r = partial(url + "/wallet.dat", 16, binary=True)
+    r = fetchpartial(url + "/wallet.dat", 16, binary=True)
     if r and len(r) == 16 and r[12:] == b'b1\x05\x00':
         pout("bitcoin_wallet", url + "/wallet.dat")
 
@@ -393,7 +393,7 @@ def test_magento_config(url):
 
 @DEFAULT
 def test_xaa(url):
-    r, s = partial(url + "/xaa", 4000, returnsize=True, binary=True)
+    r, s = fetchpartial(url + "/xaa", 4000, returnsize=True, binary=True)
     if r is None:
         return
     # we need some heuristics here to avoid false positives.

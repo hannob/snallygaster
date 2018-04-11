@@ -221,6 +221,16 @@ vulnerability was used.
 * [Golem.de: Hack on German Government via E-Learning Software Ilias](https://www.golem.de/news/government-hack-hack-on-german-government-via-e-learning-software-ilias-1803-133231.html)
 
 
+cgiecho
+-------
+
+The cgiecho tool is part of the unmaintained software cgiemail. It contains a vulnerability
+where it allows leaking arbitrary files from the web root if they contain any guessable
+string in square brackets (e.g. ['password']).
+
+* [Cgiemail - Source Code Disclosure/Local File Inclusion Exploit](https://github.com/finbar-crago/cgiemail-exploit)
+
+
 axfr
 ----
 

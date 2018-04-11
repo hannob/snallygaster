@@ -544,6 +544,18 @@ def test_ilias_defaultpw(url):
 
 
 @DEFAULT
+def test_cgiecho(url):
+    for pre in [url+"/cgi-bin/cgiecho", url+"/cgi-sys/cgiecho"]:
+        try:
+            r = poolmanager.request("GET", pre + "/" + randstring())
+            if r.status == 500 and '<P><EM>cgiemail' in r.data.decode('ascii', errors='ignore'):
+                pout("cgiecho", pre)
+        except (ConnectionRefusedError, ConnectionResetError,
+                urllib3.exceptions.HTTPError):
+            pass
+
+
+@DEFAULT
 @HOSTNAME
 def test_axfr(qhost):
     try:

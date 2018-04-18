@@ -1,0 +1,14 @@
+*.iml
+.idea/
+*.py[cod]
+*$py.class
+
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+*.egg-info/
+.installed.cfg
+*.egg

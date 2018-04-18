@@ -24,10 +24,8 @@ import dns.query
 import dns.zone
 import urllib3
 
-
 STANDARD_PHP_FILES = ['index.php', 'wp-config.php', 'configuration.php',
                       'config.php', 'config.inc.php', 'settings.php']
-
 
 # initializing global state variables
 global_what404 = {}
@@ -403,10 +401,10 @@ def test_xaa(url):
         return
     # Check for signs of common compression formats (gz, bzip2, xz, zstd, zip).
     if (r[0:3] == b'\x1f\x8b\x08' or
-       r[0:3] == b'BZh' or r[0:3] == b'BZ0' or
-       r[0:6] == b'\xFD7zXZ\x00' or
-       r[0:4] == b'\x28\xB5\x2F\xFD' or
-       r[0:4] == b'PK\x03\x04'):
+            r[0:3] == b'BZh' or r[0:3] == b'BZ0' or
+            r[0:6] == b'\xFD7zXZ\x00' or
+            r[0:4] == b'\x28\xB5\x2F\xFD' or
+            r[0:4] == b'PK\x03\x04'):
         pout("xaa", url + "/xaa")
 
 
@@ -526,8 +524,8 @@ def test_invalidsrc(url):
 def test_ilias_defaultpw(url):
     getmainpage(url)
     if (url + "/ilias.php" in mainpage_cache[url]['location'] or
-       (url + "/login.php" in mainpage_cache[url]['location'] and
-       'powered by ILIAS' in fetcher(mainpage_cache[url]['location']))):
+            (url + "/login.php" in mainpage_cache[url]['location'] and
+             'powered by ILIAS' in fetcher(mainpage_cache[url]['location']))):
         # we're confident we found an ILIAS installation
         pdebug("ilias found")
         try:
@@ -538,9 +536,9 @@ def test_ilias_defaultpw(url):
                                         headers={'Cookie': 'iltest=;PHPSESSID=' + randstring()})
             data = login.data.decode('ascii', errors='ignore')
             if (('class="ilFailureMessage"' not in data) and
-               ('name="il_message_focus"' not in data) and
-               (('class="ilBlockContent"' in data) or
-               ('class="ilAdminRow"' in data))):
+                    ('name="il_message_focus"' not in data) and
+                    (('class="ilBlockContent"' in data) or
+                     ('class="ilAdminRow"' in data))):
                 pout("ilias_defaultpw", url, "root/homer")
         except (ConnectionRefusedError, ConnectionResetError,
                 urllib3.exceptions.HTTPError):
@@ -608,6 +606,20 @@ def test_drupal(url):
         pass
 
 
+@INFO
+def test_wordpress(url):
+    version_pattern = r"href=.*ver=\d+\.\d+\.\d+"
+    r = fetcher(url + "/wp-login.php")
+    try:
+        if r != "":
+            match = re.search(version_pattern, r)
+            if match:
+                version = match.group().split("ver=")[1]
+                pout("wordpress", url, version)
+    except IndexError:
+        pass
+
+
 def new_excepthook(etype, value, traceback):
     if etype == KeyboardInterrupt:
         pdebug("Interrupted by user...")
@@ -623,7 +635,6 @@ def new_excepthook(etype, value, traceback):
 
 
 sys.excepthook = new_excepthook
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument("hosts", nargs='*', help="hostname to scan")
@@ -653,7 +664,6 @@ if args.useragent:
     user_agent = {'user-agent': args.useragent[0]}
 poolmanager = urllib3.PoolManager(10, headers=user_agent)
 
-
 if args.tests is None:
     tests = [g for f, g in locals().items() if hasattr(g, '_is_default_test')]
 else:
@@ -680,8 +690,7 @@ for i, h in enumerate(hosts):
 
 pdebug("All hosts: %s" % ",".join(hosts))
 
-
-json_out=[]
+json_out = []
 for host in hosts:
     pdebug("Scanning %s" % host)
     for test in tests:

@@ -401,10 +401,10 @@ def test_xaa(url):
         return
     # Check for signs of common compression formats (gz, bzip2, xz, zstd, zip).
     if (r[0:3] == b'\x1f\x8b\x08' or
-            r[0:3] == b'BZh' or r[0:3] == b'BZ0' or
-            r[0:6] == b'\xFD7zXZ\x00' or
-            r[0:4] == b'\x28\xB5\x2F\xFD' or
-            r[0:4] == b'PK\x03\x04'):
+        r[0:3] == b'BZh' or r[0:3] == b'BZ0' or
+        r[0:6] == b'\xFD7zXZ\x00' or
+        r[0:4] == b'\x28\xB5\x2F\xFD' or
+        r[0:4] == b'PK\x03\x04'):
         pout("xaa", url + "/xaa")
 
 
@@ -524,8 +524,8 @@ def test_invalidsrc(url):
 def test_ilias_defaultpw(url):
     getmainpage(url)
     if (url + "/ilias.php" in mainpage_cache[url]['location'] or
-            (url + "/login.php" in mainpage_cache[url]['location'] and
-             'powered by ILIAS' in fetcher(mainpage_cache[url]['location']))):
+       (url + "/login.php" in mainpage_cache[url]['location'] and
+       'powered by ILIAS' in fetcher(mainpage_cache[url]['location']))):
         # we're confident we found an ILIAS installation
         pdebug("ilias found")
         try:
@@ -536,9 +536,9 @@ def test_ilias_defaultpw(url):
                                         headers={'Cookie': 'iltest=;PHPSESSID=' + randstring()})
             data = login.data.decode('ascii', errors='ignore')
             if (('class="ilFailureMessage"' not in data) and
-                    ('name="il_message_focus"' not in data) and
-                    (('class="ilBlockContent"' in data) or
-                     ('class="ilAdminRow"' in data))):
+                ('name="il_message_focus"' not in data) and
+                (('class="ilBlockContent"' in data) or
+                ('class="ilAdminRow"' in data))):
                 pout("ilias_defaultpw", url, "root/homer")
         except (ConnectionRefusedError, ConnectionResetError,
                 urllib3.exceptions.HTTPError):

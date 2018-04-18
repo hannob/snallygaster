@@ -127,7 +127,7 @@ secrets will end up on the webspace without a .php extension and thus won't be p
 deadjoe
 -------
 
-The editor JOE creates a file DEADJOE on crashes, which c****ontains content of the currently edited files.
+The editor JOE creates a file DEADJOE on crashes, which contains content of the currently edited files.
 Similar to backupfiles.
 
 

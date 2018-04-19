@@ -608,6 +608,20 @@ def test_drupal(url):
         pass
 
 
+@INFO
+def test_wordpress(url):
+    version_pattern = r"href=.*ver=\d+\.\d+\.\d+"
+    r = fetcher(url + "/wp-login.php")
+    try:
+        if r != "":
+            match = re.search(version_pattern, r)
+            if match:
+                version = match.group().split("ver=")[1]
+                pout("wordpress", url, version)
+    except IndexError:
+        pass
+
+
 def new_excepthook(etype, value, traceback):
     if etype == KeyboardInterrupt:
         pdebug("Interrupted by user...")
@@ -681,7 +695,7 @@ for i, h in enumerate(hosts):
 pdebug("All hosts: %s" % ",".join(hosts))
 
 
-json_out=[]
+json_out = []
 for host in hosts:
     pdebug("Scanning %s" % host)
     for test in tests:

@@ -132,7 +132,7 @@ Similar to backupfiles.
 
 
 sql_dump
---------
+---------
 
 This checks for common names of SQL database dumps. These can lead to massive database leaks.
 
@@ -262,3 +262,9 @@ drupal
 ------
 
 Checks for the presence of the Drupal CMS and outputs the version.
+
+
+wordpress
+---------
+
+Checks for the presence of the Wordpress CMS and outputs the version.

@@ -695,7 +695,7 @@ for i, h in enumerate(hosts):
 pdebug("All hosts: %s" % ",".join(hosts))
 
 
-json_out = []
+json_out=[]
 for host in hosts:
     pdebug("Scanning %s" % host)
     for test in tests:

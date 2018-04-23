@@ -466,7 +466,7 @@ def test_sshkey(url):
 @DEFAULT
 def test_dotenv(url):
     r = fetcher(url + "/.env")
-    if "APP_ENV=" in r:
+    if "APP_ENV=" in r or "DB_PASSWORD=" in r:
         pout("dotenv", url + "/.env")
 
 

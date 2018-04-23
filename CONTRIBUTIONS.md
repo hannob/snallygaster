@@ -33,12 +33,13 @@ Coding style
 
 The code complies with [pycodestyle](https://pypi.python.org/pypi/pycodestyle), except for
 the "overly long lines" rule (E501), as forcing shorter lines often makes the code less
-readable.
+readable. We also need to disable W503 to comply with the latest PEP 8
+[recommendation for the placement of binary operators](https://www.python.org/dev/peps/pep-0008/#should-a-line-break-before-or-after-a-binary-operator).
 
 The code should produce no warnings with this command:
 
 ```
-pycodestyle --ignore=E501 snallygaster
+pycodestyle --ignore=E501,W503 snallygaster
 ```
 
 

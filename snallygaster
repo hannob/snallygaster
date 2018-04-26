@@ -23,7 +23,7 @@ import dns.resolver
 import dns.query
 import dns.zone
 import urllib3
-
+import threading
 
 STANDARD_PHP_FILES = ['index.php', 'wp-config.php', 'configuration.php',
                       'config.php', 'config.inc.php', 'settings.php']
@@ -681,17 +681,30 @@ for i, h in enumerate(hosts):
 pdebug("All hosts: %s" % ",".join(hosts))
 
 
+
+def testTask(test):
+    pdebug("launching %s test on" % test.__name__)
+    if hasattr(test, '_is_hostname_test'):
+        test(host)
+    else:
+        if not args.nohttp:
+            test("http://" + host)
+        if not args.nohttps:
+            test("https://" + host)
+
+def hostTask(host):
+    pdebug("Scanning %s" % host)
+    for test in tests:
+        t = threading.Thread(testTask(test))
+        t.daemon = False
+        t.start()
+
 json_out = []
 for host in hosts:
     pdebug("Scanning %s" % host)
-    for test in tests:
-        pdebug("running %s test" % test.__name__)
-        if hasattr(test, '_is_hostname_test'):
-            test(host)
-        else:
-            if not args.nohttp:
-                test("http://" + host)
-            if not args.nohttps:
-                test("https://" + host)
+    t = threading.Thread(hostTask(host))
+    t.daemon = False
+    t.start()
+
 if args.json:
     print(json.dumps(json_out))

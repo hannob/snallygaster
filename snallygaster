@@ -230,10 +230,10 @@ def test_idea(url):
 
 
 @DEFAULT
-def test_symphony_databases_yml(url):
+def test_symfony_databases_yml(url):
     r = fetcher(url + '/config/databases.yml')
     if 'class:' in r and 'param:' in r:
-        pout("symphony_databases_yml", url + "/config/databases.yml")
+        pout("symfony_databases_yml", url + "/config/databases.yml")
 
 
 @DEFAULT

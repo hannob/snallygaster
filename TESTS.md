@@ -23,10 +23,10 @@ idea
 Configuration file for JetBrains, can contain passwords.
 
 
-symphony_databases_yml
+symfony_databases_yml
 ----------------------
 
-Database configuration file (databases.yml) used by older versions of Symphony. These aren't
+Database configuration file (databases.yml) used by older versions of Symfony. These aren't
 supposed to be stored within the web root, but sometimes they are.
 
 

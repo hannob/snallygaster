@@ -262,3 +262,9 @@ drupal
 ------
 
 Checks for the presence of the Drupal CMS and outputs the version.
+
+
+wordpress
+---------
+
+Checks for the presence of the Wordpress CMS and outputs the version.

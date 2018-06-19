@@ -608,6 +608,25 @@ def test_drupal(url):
         pass
 
 
+@INFO
+def test_wordpress(url):
+    r = getmainpage(url)
+    try:
+        p = bs4.BeautifulSoup(r, 'html.parser')
+        g = p.findAll("meta", {"name": "generator"})
+        if g != [] and g[0]['content'][:9] == "WordPress":
+            version = g[0]['content'][10:]
+            if not set(version).issubset("0123456789."):
+                return
+            pout("wordpress", url, version)
+    except NotImplementedError:
+        # Necessary ddue to a python bug (remove in the future):
+        # https://bugs.python.org/issue32876
+        return
+    except KeyError:
+        return
+
+
 def new_excepthook(etype, value, traceback):
     if etype == KeyboardInterrupt:
         pdebug("Interrupted by user...")

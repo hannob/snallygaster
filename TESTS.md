@@ -114,6 +114,13 @@ The Apple OS X file manager Finder creates these files. They may leak directory 
 * [Internetwache: Scanning the Alexa Top 1M for .DS_Store files](https://en.internetwache.org/scanning-the-alexa-top-1m-for-ds-store-files-12-03-2018/)
 
 
+php_cs_cache
+------------
+
+Cache file from php-cs-checker, a codingstyle checker for PHP. This effectively leaks a directory
+listing of PHP files.
+
+
 backupfiles
 -----------
 

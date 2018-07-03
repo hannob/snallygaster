@@ -667,6 +667,8 @@ parser.add_argument("-i", "--info", action="store_true",
                     help="Enable all info tests (no bugs/security vulnerabilities)")
 parser.add_argument("-n", "--noisy", action="store_true",
                     help="show noisy messages that indicate boring bugs, but no security issue")
+parser.add_argument("-p", "--path", default='', action="store", type=str,
+                    help="Base path on server (scans root dir by default)")
 parser.add_argument("-j", "--json", action="store_true",
                     help="produce JSON output")
 parser.add_argument("-d", "--debug", action="store_true",
@@ -694,6 +696,12 @@ else:
 if args.info:
     tests += [g for f, g in locals().items() if hasattr(g, '_is_info_test')]
 
+path = args.path.rstrip("/")
+if len(path) > 0 and path[0] != "/":
+    path = "/" + path
+if path != "":
+    pdebug("Path: %s" % path)
+
 hosts = list(args.hosts)
 if not args.nowww:
     for h in args.hosts:
@@ -716,8 +724,8 @@ for host in hosts:
             test(host)
         else:
             if not args.nohttp:
-                test("http://" + host)
+                test("http://" + host + path)
             if not args.nohttps:
-                test("https://" + host)
+                test("https://" + host + path)
 if args.json:
     print(json.dumps(json_out))

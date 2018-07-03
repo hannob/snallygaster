@@ -139,7 +139,7 @@ def check404(url):
         return global_what404[url]
     rndurl = url + "/" + randstring() + ".htm"
 
-    pdebug("checking 404 page state of %s" % rndurl)
+    pdebug("Checking 404 page state of %s" % rndurl)
     try:
         r = poolmanager.request('GET', rndurl, retries=False,
                                 redirect=False)
@@ -485,7 +485,7 @@ def test_invalidsrc(url):
     except NotImplementedError:
         # This is due to a python bug, please remove in the future.
         # https://bugs.python.org/issue32876
-        pdebug("can't parse due to python bug")
+        pdebug("Can't parse due to python bug")
         return
     srcs = []
     for tag in p.findAll(attrs={"src": True}):
@@ -511,7 +511,7 @@ def test_invalidsrc(url):
         if domain in checkeddomains:
             continue
         checkeddomains.append(domain)
-        pdebug("checking url %s" % realurl)
+        pdebug("Checking url %s" % realurl)
 
         if dnscache(domain) is None:
             pout("invalidsrc_dns", url, escape(src))
@@ -536,7 +536,7 @@ def test_ilias_defaultpw(url):
        or (url + "/login.php" in mainpage_cache[url]['location']
        and 'powered by ILIAS' in fetcher(mainpage_cache[url]['location']))):
         # we're confident we found an ILIAS installation
-        pdebug("ilias found")
+        pdebug("Ilias found")
         try:
             login = poolmanager.request("POST", url + "/ilias.php?cmd=post&baseClass=ilStartUpGUI",
                                         fields={'username': 'root',
@@ -654,11 +654,11 @@ sys.excepthook = new_excepthook
 parser = argparse.ArgumentParser()
 parser.add_argument("hosts", nargs='*', help="hostname to scan")
 parser.add_argument("-t", "--tests", nargs=1,
-                    help="comma-separated tests to run.")
+                    help="Comma-separated tests to run.")
 parser.add_argument("--useragent", nargs=1,
                     help="User agent to send")
 parser.add_argument("--nowww", action="store_true",
-                    help="skip scanning www.[host]")
+                    help="Skip scanning www.[host]")
 parser.add_argument("--nohttp", action="store_true",
                     help="Don't scan http")
 parser.add_argument("--nohttps", action="store_true",
@@ -666,13 +666,13 @@ parser.add_argument("--nohttps", action="store_true",
 parser.add_argument("-i", "--info", action="store_true",
                     help="Enable all info tests (no bugs/security vulnerabilities)")
 parser.add_argument("-n", "--noisy", action="store_true",
-                    help="show noisy messages that indicate boring bugs, but no security issue")
+                    help="Show noisy messages that indicate boring bugs, but no security issue")
 parser.add_argument("-p", "--path", default='', action="store", type=str,
                     help="Base path on server (scans root dir by default)")
 parser.add_argument("-j", "--json", action="store_true",
-                    help="produce JSON output")
+                    help="Produce JSON output")
 parser.add_argument("-d", "--debug", action="store_true",
-                    help="show detailed debugging info")
+                    help="Show detailed debugging info")
 args = parser.parse_args()
 
 # Initializing global pool manager
@@ -719,7 +719,7 @@ json_out = []
 for host in hosts:
     pdebug("Scanning %s" % host)
     for test in tests:
-        pdebug("running %s test" % test.__name__)
+        pdebug("Running %s test" % test.__name__)
         if hasattr(test, '_is_hostname_test'):
             test(host)
         else:

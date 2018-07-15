@@ -230,6 +230,14 @@ def test_idea(url):
 
 
 @DEFAULT
+def test_nette_config(url):
+    for fn in ["app/config/config.neon", "app/config.neon"]:
+        r = fetcher(url + "/" + fn)
+        if 'application:' in r:
+            pout("nette_config_neon", url + "/" + fn)
+
+
+@DEFAULT
 def test_symfony_databases_yml(url):
     r = fetcher(url + '/config/databases.yml')
     if 'class:' in r and 'param:' in r:

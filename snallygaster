@@ -634,6 +634,14 @@ def test_wordpress(url):
         return
 
 
+@INFO
+def test_phpinfo(url):
+    for fn in ["phpinfo.php", "info.php", "i.php", "test.php"]:
+        r = fetcher(url + "/" + fn)
+        if 'phpinfo()' in r:
+            pout("phpinfo", url + "/" + fn)
+            
+
 def new_excepthook(etype, value, traceback):
     if etype == KeyboardInterrupt:
         pdebug("Interrupted by user...")

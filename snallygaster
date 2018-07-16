@@ -640,7 +640,7 @@ def test_phpinfo(url):
         r = fetcher(url + "/" + fn)
         if 'phpinfo()' in r:
             pout("phpinfo", url + "/" + fn)
-            
+
 
 def new_excepthook(etype, value, traceback):
     if etype == KeyboardInterrupt:

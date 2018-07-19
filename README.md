@@ -28,6 +28,20 @@ pip3 install snallygaster
 It's a simple python 3 script, so you can just download the file "snallygaster"
 and execute it. Dependencies are urllib3, beautifulsoup4 and dnspython.
 
+Use with docker
+===============
+
+```sh
+$ # Clone the repo
+$ # Build image
+$ docker build -t snallygaster .
+$ # Run image and display help
+$ docker run -it --rm snallygaster
+$ docker run -it --rm snallygaster --help
+$ # Or
+$ docker run -it --rm snallygaster your.hostname.org
+```
+
 faq
 ===
 

@@ -23,7 +23,7 @@ import dns.resolver
 import dns.query
 import dns.zone
 import urllib3
-
+from multiprocessing.dummy import Pool as ThreadPool
 
 STANDARD_PHP_FILES = ['index.php', 'wp-config.php', 'configuration.php',
                       'config.php', 'config.inc.php', 'settings.php']
@@ -673,6 +673,10 @@ parser.add_argument("-j", "--json", action="store_true",
                     help="Produce JSON output")
 parser.add_argument("-d", "--debug", action="store_true",
                     help="Show detailed debugging info")
+parser.add_argument("-l","--list", nargs=1,
+                    help="get list of subdomains")
+parser.add_argument("-c","--concurency", nargs=1, default=['5'],
+                    help="no of threads(works only with -l)")
 args = parser.parse_args()
 
 # Initializing global pool manager
@@ -702,30 +706,44 @@ if len(path) > 0 and path[0] != "/":
 if path != "":
     pdebug("Path: %s" % path)
 
-hosts = list(args.hosts)
-if not args.nowww:
-    for h in args.hosts:
-        hosts.append("www." + h)
 
-for i, h in enumerate(hosts):
-    hosts[i] = h.encode("idna").decode("ascii")
-    if h != hosts[i]:
-        pdebug("Converted %s to %s" % (h, hosts[i]))
+def mThreader(domain):
+    hosts = []
+    hosts.append(domain)
+    if not args.nowww:
+        hosts.append("www." + domain)
+    try:
+        for i, h in enumerate(hosts):
+            hosts[i] = h.encode("idna").decode("ascii")
+            if h != hosts[i]:
+                pdebug("Converted %s to %s" % (h, hosts[i]))
 
-pdebug("All hosts: %s" % ",".join(hosts))
+        pdebug("All hosts: %s" % ",".join(hosts))
+    except Exception as e:
+        print(hosts)
 
+    json_out = []
+    for host in hosts:
+        pdebug("Scanning %s" % host)
+        for test in tests:
+            pdebug("Running %s test" % test.__name__)
+            if hasattr(test, '_is_hostname_test'):
+                test(host)
+            else:
+                if not args.nohttp:
+                    test("http://" + host + path)
+                if not args.nohttps:
+                    test("https://" + host + path)
+    if args.json:
+        print(json.dumps(json_out))
 
-json_out = []
-for host in hosts:
-    pdebug("Scanning %s" % host)
-    for test in tests:
-        pdebug("Running %s test" % test.__name__)
-        if hasattr(test, '_is_hostname_test'):
-            test(host)
-        else:
-            if not args.nohttp:
-                test("http://" + host + path)
-            if not args.nohttps:
-                test("https://" + host + path)
-if args.json:
-    print(json.dumps(json_out))
+if args.list:
+    with open (args.list[0]) as domains:
+        domains=domains.readlines()
+        domains=[x.strip() for x in domains]
+        pool=ThreadPool(int(args.concurency[0]))
+        pool.map(mThreader,domains)
+        pool.close()
+        pool.join()
+else:
+    mThreader(args.hosts[0])

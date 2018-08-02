@@ -723,7 +723,7 @@ def mThreader(domain,test):
 
     json_out = []
     for host in hosts:
-        pdebug("Scanning %s" % host)
+       # pdebug("Scanning %s" % host)
 
         pdebug(("Running %s test for %s") % (test.__name__, host))
 
@@ -752,4 +752,5 @@ if args.list:
         pool.close()
         pool.join()
 else:
-    mThreader(args.hosts[0])
+	for test in tests:
+		mThreader(args.hosts[0],test)

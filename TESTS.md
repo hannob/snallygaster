@@ -130,6 +130,8 @@ EMACS creates #[filename]#.
 All of these are particularly problematic in combination with PHP, as a file that may contain
 secrets will end up on the webspace without a .php extension and thus won't be parsed.
 
+* [FEROSS: 1% of CMS-Powered Sites Expose Their Database Passwords](https://feross.org/cmsploit/)
+
 
 deadjoe
 -------

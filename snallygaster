@@ -580,6 +580,27 @@ def test_phpunit_eval(url):
 
 
 @DEFAULT
+def test_acmereflect(url):
+    reflect=randstring()
+    r = fetcher(url + "/.well-known/acme-challenge/" + reflect)
+    if r.startswith(reflect):
+        r = poolmanager.request('GET', url + "/.well-known/acme-challenge/<html>" + reflect,
+                                retries=False, redirect=True)
+        if r.status == 200:
+            data = r.data.decode('ascii', errors='ignore')
+        else:
+            data = ""
+        headers = {k.lower(): v for k, v in r.headers.items()}
+        if data.startswith("<html>" + reflect):
+            if ('content-type' in headers) and headers['content-type'].startswith("text/html"):
+                pout("acmereflect_html_sniff", url + "/.well-known/acme-challenge/reflect")
+                return
+            pout("acmereflect_html", url + "/.well-known/acme-challenge/reflect")
+            return
+        pout("acmereflect", url + "/.well-known/acme-challenge/reflect")
+
+
+@DEFAULT
 @HOSTNAME
 def test_axfr(qhost):
     try:

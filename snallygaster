@@ -581,7 +581,7 @@ def test_phpunit_eval(url):
 
 @DEFAULT
 def test_acmereflect(url):
-    reflect=randstring()
+    reflect = randstring()
     r = fetcher(url + "/.well-known/acme-challenge/" + reflect)
     if r.startswith(reflect):
         r = poolmanager.request('GET', url + "/.well-known/acme-challenge/<html>" + reflect,

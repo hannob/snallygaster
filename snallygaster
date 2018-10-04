@@ -476,6 +476,11 @@ def test_dotenv(url):
     if "APP_ENV=" in r or "DB_PASSWORD=" in r:
         pout("dotenv", url + "/.env")
 
+@DEFAULT
+def test_vagrantfile(url):
+    r = fetcher(url + "/Vagrantfile")
+    if "Vagrant.configure" in r:
+        pout("Vagrantfile", url + "/Vagrantfile")
 
 @DEFAULT
 def test_invalidsrc(url):

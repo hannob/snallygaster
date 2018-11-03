@@ -259,6 +259,12 @@ HTML code and does MIME sniffing.
 * [XSS using quirky implementations of ACME http-01](https://labs.detectify.com/2018/09/04/xss-using-quirky-implementations-of-acme-http-01/)
 
 
+drupaldb
+--------
+
+Misconfigured Drupal installations may expose their SQLite database.
+
+
 axfr
 ----
 

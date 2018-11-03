@@ -601,6 +601,13 @@ def test_acmereflect(url):
 
 
 @DEFAULT
+def test_drupaldb(url):
+    r = fetchpartial(url + "/sites/default/files/.ht.sqlite", 20, binary=True)
+    if r and r[0:13] == b'SQLite format':
+        pout("drupaldb", url + "/sites/default/files/.ht.sqlite")
+
+
+@DEFAULT
 @HOSTNAME
 def test_axfr(qhost):
     try:

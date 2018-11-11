@@ -608,6 +608,17 @@ def test_drupaldb(url):
 
 
 @DEFAULT
+def test_phpwarnings(url):
+    try:
+        r = poolmanager.request("GET", url, headers={"Cookie": "PHPSESSID=in_vålíd"})
+        if 'The session id is too long or contains illegal characters' in r.data.decode('ascii', errors='ignore'):
+            pout("phpwarnings", url)
+    except (urllib3.exceptions.HTTPError, UnicodeError,
+            ConnectionRefusedError, ssl.SSLError):
+        pass
+
+
+@DEFAULT
 @HOSTNAME
 def test_axfr(qhost):
     try:

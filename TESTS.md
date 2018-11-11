@@ -265,6 +265,12 @@ drupaldb
 Misconfigured Drupal installations may expose their SQLite database.
 
 
+phpwarnings
+-----------
+
+Tries to trigger a PHP warning with an invalid PHPSESSID.
+
+
 axfr
 ----
 

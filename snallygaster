@@ -272,7 +272,6 @@ def test_rcs_dir(url):
     r = fetcher(url + '/RCS/')
     print(r)
     if ',v' in r:
-        print(r)
         pout("rcs_dir", url + "/RCS")
 
 @DEFAULT

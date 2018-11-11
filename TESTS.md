@@ -62,6 +62,12 @@ cvs_dir
 Identical to git_dir issue, just with CVS instead of Git.
 
 
+rcs_dir
+-------
+
+Similar to cvs_dir issue, but with RCS, the simpler VCS that is used by CVS (but can also be standalone).
+
+
 apache_server_status
 --------------------
 

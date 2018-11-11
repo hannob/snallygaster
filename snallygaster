@@ -267,6 +267,13 @@ def test_cvs_dir(url):
     if len(r.split("\n")) == 2 and ':' in r and '<' not in r:
         pout("cvs_dir", url + "/CVS/Root")
 
+@DEFAULT
+def test_rcs_dir(url):
+    r = fetcher(url + '/RCS/')
+    print(r)
+    if ',v' in r:
+        print(r)
+        pout("rcs_dir", url + "/RCS")
 
 @DEFAULT
 def test_apache_server_status(url):

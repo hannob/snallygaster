@@ -686,85 +686,86 @@ def new_excepthook(etype, value, traceback):
     print("")
     sys.__excepthook__(etype, value, traceback)
 
-
-sys.excepthook = new_excepthook
-
-
-parser = argparse.ArgumentParser()
-parser.add_argument("hosts", nargs='*', help="hostname to scan")
-parser.add_argument("-t", "--tests", nargs=1,
-                    help="Comma-separated tests to run.")
-parser.add_argument("--useragent", nargs=1,
-                    help="User agent to send")
-parser.add_argument("--nowww", action="store_true",
-                    help="Skip scanning www.[host]")
-parser.add_argument("--nohttp", action="store_true",
-                    help="Don't scan http")
-parser.add_argument("--nohttps", action="store_true",
-                    help="Don't scan https")
-parser.add_argument("-i", "--info", action="store_true",
-                    help="Enable all info tests (no bugs/security vulnerabilities)")
-parser.add_argument("-n", "--noisy", action="store_true",
-                    help="Show noisy messages that indicate boring bugs, but no security issue")
-parser.add_argument("-p", "--path", default='', action="store", type=str,
-                    help="Base path on server (scans root dir by default)")
-parser.add_argument("-j", "--json", action="store_true",
-                    help="Produce JSON output")
-parser.add_argument("-d", "--debug", action="store_true",
-                    help="Show detailed debugging info")
-args = parser.parse_args()
-
-# Initializing global pool manager
-user_agent = {'user-agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0'}
-if args.useragent:
-    user_agent = {'user-agent': args.useragent[0]}
-poolmanager = urllib3.PoolManager(10, headers=user_agent)
+    
+if __name__ == "__main__":
+  sys.excepthook = new_excepthook
 
 
-if args.tests is None:
-    tests = [g for f, g in locals().items() if hasattr(g, '_is_default_test')]
-else:
-    tests = []
-    try:
-        for x in args.tests[0].split(','):
-            tests.append(locals()["test_" + x])
-    except KeyError:
-        print("Test %s does not exist" % x)
-        sys.exit(1)
+  parser = argparse.ArgumentParser()
+  parser.add_argument("hosts", nargs='*', help="hostname to scan")
+  parser.add_argument("-t", "--tests", nargs=1,
+                      help="Comma-separated tests to run.")
+  parser.add_argument("--useragent", nargs=1,
+                      help="User agent to send")
+  parser.add_argument("--nowww", action="store_true",
+                      help="Skip scanning www.[host]")
+  parser.add_argument("--nohttp", action="store_true",
+                      help="Don't scan http")
+  parser.add_argument("--nohttps", action="store_true",
+                      help="Don't scan https")
+  parser.add_argument("-i", "--info", action="store_true",
+                      help="Enable all info tests (no bugs/security vulnerabilities)")
+  parser.add_argument("-n", "--noisy", action="store_true",
+                      help="Show noisy messages that indicate boring bugs, but no security issue")
+  parser.add_argument("-p", "--path", default='', action="store", type=str,
+                      help="Base path on server (scans root dir by default)")
+  parser.add_argument("-j", "--json", action="store_true",
+                      help="Produce JSON output")
+  parser.add_argument("-d", "--debug", action="store_true",
+                      help="Show detailed debugging info")
+  args = parser.parse_args()
 
-if args.info:
-    tests += [g for f, g in locals().items() if hasattr(g, '_is_info_test')]
-
-path = args.path.rstrip("/")
-if len(path) > 0 and path[0] != "/":
-    path = "/" + path
-if path != "":
-    pdebug("Path: %s" % path)
-
-hosts = list(args.hosts)
-if not args.nowww:
-    for h in args.hosts:
-        hosts.append("www." + h)
-
-for i, h in enumerate(hosts):
-    hosts[i] = h.encode("idna").decode("ascii")
-    if h != hosts[i]:
-        pdebug("Converted %s to %s" % (h, hosts[i]))
-
-pdebug("All hosts: %s" % ",".join(hosts))
+  # Initializing global pool manager
+  user_agent = {'user-agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0'}
+  if args.useragent:
+      user_agent = {'user-agent': args.useragent[0]}
+  poolmanager = urllib3.PoolManager(10, headers=user_agent)
 
 
-json_out = []
-for host in hosts:
-    pdebug("Scanning %s" % host)
-    for test in tests:
-        pdebug("Running %s test" % test.__name__)
-        if hasattr(test, '_is_hostname_test'):
-            test(host)
-        else:
-            if not args.nohttp:
-                test("http://" + host + path)
-            if not args.nohttps:
-                test("https://" + host + path)
-if args.json:
-    print(json.dumps(json_out))
+  if args.tests is None:
+      tests = [g for f, g in locals().items() if hasattr(g, '_is_default_test')]
+  else:
+      tests = []
+      try:
+          for x in args.tests[0].split(','):
+              tests.append(locals()["test_" + x])
+      except KeyError:
+          print("Test %s does not exist" % x)
+          sys.exit(1)
+
+  if args.info:
+      tests += [g for f, g in locals().items() if hasattr(g, '_is_info_test')]
+
+  path = args.path.rstrip("/")
+  if len(path) > 0 and path[0] != "/":
+      path = "/" + path
+  if path != "":
+      pdebug("Path: %s" % path)
+
+  hosts = list(args.hosts)
+  if not args.nowww:
+      for h in args.hosts:
+          hosts.append("www." + h)
+
+  for i, h in enumerate(hosts):
+      hosts[i] = h.encode("idna").decode("ascii")
+      if h != hosts[i]:
+          pdebug("Converted %s to %s" % (h, hosts[i]))
+
+  pdebug("All hosts: %s" % ",".join(hosts))
+
+
+  json_out = []
+  for host in hosts:
+      pdebug("Scanning %s" % host)
+      for test in tests:
+          pdebug("Running %s test" % test.__name__)
+          if hasattr(test, '_is_hostname_test'):
+              test(host)
+          else:
+              if not args.nohttp:
+                  test("http://" + host + path)
+              if not args.nohttps:
+                  test("https://" + host + path)
+  if args.json:
+      print(json.dumps(json_out))

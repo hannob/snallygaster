@@ -1,4 +1,13 @@
 # snallygaster
+
+[![Rawsec's CyberSecurity Inventory](https://inventory.rawsec.ml/img/badges/Rawsec-inventoried-FF5050_flat.svg)](https://inventory.rawsec.ml/tools.html#snallygaster)
+[![PyPI version](https://badge.fury.io/py/snallygaster.svg)](https://badge.fury.io/py/snallygaster)
+[![GitHub version](https://badge.fury.io/gh/hannob%2Fsnallygaster.svg)](https://badge.fury.io/gh/hannob%2Fsnallygaster)
+[![GitHub issues](https://img.shields.io/github/issues/hannob/snallygaster.svg)](https://github.com/hannob/snallygaster/issues)
+[![GitHub forks](https://img.shields.io/github/forks/hannob/snallygaster.svg)](https://github.com/hannob/snallygaster/network)
+[![GitHub stars](https://img.shields.io/github/stars/hannob/snallygaster.svg)](https://github.com/hannob/snallygaster/stargazers)
+[![GitHub license](https://img.shields.io/github/license/hannob/snallygaster.svg)](https://github.com/hannob/snallygaster/blob/master/LICENSE)
+
 Tool to scan for secret files on HTTP servers
 
 what?

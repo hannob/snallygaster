@@ -619,6 +619,13 @@ def test_phpwarnings(url):
 
 
 @DEFAULT
+def test_adminer(url):
+    r = fetcher(url + "/adminer.php")
+    if "adminer.org" in r:
+        pout("adminer", url + "/adminer.php")
+
+
+@DEFAULT
 @HOSTNAME
 def test_axfr(qhost):
     try:

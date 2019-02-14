@@ -773,5 +773,9 @@ for host in hosts:
                 test("http://" + host + path)
             if not args.nohttps:
                 test("https://" + host + path)
+
+# clear all sockets
+poolmanager.clear()
+
 if args.json:
     print(json.dumps(json_out))

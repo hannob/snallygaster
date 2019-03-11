@@ -281,6 +281,15 @@ often have login forms.)
 * [https://gwillem.gitlab.io/2019/01/17/adminer-4.6.2-file-disclosure-vulnerability/](https://gwillem.gitlab.io/2019/01/17/adminer-4.6.2-file-disclosure-vulnerability/)
 
 
+elmah
+-----
+
+Public error console for the ELMAH library. This can contain cookies and other sensitive
+pieces of information, it shouldn't be accessible from outside.
+
+* [ASP.NET session hijacking with Google and ELMAH](https://www.troyhunt.com/aspnet-session-hijacking-with-google/)
+
+
 axfr
 ----
 

@@ -626,6 +626,16 @@ def test_adminer(url):
 
 
 @DEFAULT
+def test_elmah(url):
+    r = fetcher(url + "/elmah.axd")
+    if "Error Log for" in r:
+        pout("elmah", url + "/elmah.axd")
+    r = fetcher(url + "/scripts/elmah.axd")
+    if "Error Log for" in r:
+        pout("elmah", url + "/scripts/elmah.axd")
+
+
+@DEFAULT
 @HOSTNAME
 def test_axfr(qhost):
     try:

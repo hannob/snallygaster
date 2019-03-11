@@ -337,7 +337,7 @@ def test_backupfiles(url):
         # code, check doesn't make sense.
         return
     for f in STANDARD_PHP_FILES:
-        for ps in ['_FILE_.bak', '_FILE_~', '._FILE_.swp', '%23_FILE_%23']:
+        for ps in ['_FILE_.bak', '_FILE_~', '._FILE_.swp', '%23_FILE_%23', '_FILE_.save']:
             furl = url + "/" + ps.replace('_FILE_', f)
             r = fetcher(furl)
             if any(m in r for m in ['<?php', '<?=']):

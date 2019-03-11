@@ -278,7 +278,7 @@ adminer is a one file php database frontend. (I may consider changing this to an
 but for now I believe most of these are not intentionally publicly available, though they
 often have login forms.)
 
-* [https://gwillem.gitlab.io/2019/01/17/adminer-4.6.2-file-disclosure-vulnerability/](https://gwillem.gitlab.io/2019/01/17/adminer-4.6.2-file-disclosure-vulnerability/)
+* [Adminer leaks passwords; Magecart hackers rejoice](https://gwillem.gitlab.io/2019/01/17/adminer-4.6.2-file-disclosure-vulnerability/)
 
 
 elmah

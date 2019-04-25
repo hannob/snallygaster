@@ -123,6 +123,12 @@ EMACS creates #[filename]#.
 All of these are particularly problematic in combination with PHP, as a file that may contain
 secrets will end up on the webspace without a .php extension and thus won't be parsed.
 
+backup_archives
+---------------
+
+Complete or partial backups of servers are sometimes left online. This test checks for common names
+like backup.tar.gz or [hostname].tar.gz.
+
 
 deadjoe
 -------

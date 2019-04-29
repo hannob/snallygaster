@@ -114,6 +114,13 @@ The Apple OS X file manager Finder creates these files. They may leak directory 
 * [Internetwache: Scanning the Alexa Top 1M for .DS_Store files](https://en.internetwache.org/scanning-the-alexa-top-1m-for-ds-store-files-12-03-2018/)
 
 
+php_cs_cache
+------------
+
+Cache file from php-cs-checker, a codingstyle checker for PHP. This effectively leaks a directory
+listing of PHP files.
+
+
 backupfiles
 -----------
 
@@ -123,11 +130,16 @@ EMACS creates #[filename]#.
 All of these are particularly problematic in combination with PHP, as a file that may contain
 secrets will end up on the webspace without a .php extension and thus won't be parsed.
 
+* [FEROSS: 1% of CMS-Powered Sites Expose Their Database Passwords](https://feross.org/cmsploit/)
+
+
 backup_archives
 ---------------
 
 Complete or partial backups of servers are sometimes left online. This test checks for common names
-like backup.tar.gz or [hostname].tar.gz.
+like backup.tar.gz.
+
+* [Golem.de: Datenlecks durch backup.zip](https://www.golem.de/news/websicherheit-datenlecks-durch-backup-zip-1904-140564.html)
 
 
 deadjoe
@@ -246,6 +258,47 @@ that will simply pass the POST data to PHP's eval.
 * [CVE-2017-9841 RCE vulnerability in phpunit](http://phpunit.vulnbusters.com/)
 
 
+acmereflect
+-----------
+
+Tests if there's an ACME API endpoint that reflects content and can be abused for XSS.
+Outputs acmereflect_html if the API also reflects HTML code, acmereflect_html_sniff if it outputs
+HTML code and does MIME sniffing.
+
+* [XSS using quirky implementations of ACME http-01](https://labs.detectify.com/2018/09/04/xss-using-quirky-implementations-of-acme-http-01/)
+
+
+drupaldb
+--------
+
+Misconfigured Drupal installations may expose their SQLite database.
+
+
+phpwarnings
+-----------
+
+Tries to trigger a PHP warning with an invalid PHPSESSID.
+
+
+adminer
+-------
+
+adminer is a one file php database frontend. (I may consider changing this to an info test,
+but for now I believe most of these are not intentionally publicly available, though they
+often have login forms.)
+
+* [Adminer leaks passwords; Magecart hackers rejoice](https://gwillem.gitlab.io/2019/01/17/adminer-4.6.2-file-disclosure-vulnerability/)
+
+
+elmah
+-----
+
+Public error console for the ELMAH library. This can contain cookies and other sensitive
+pieces of information, it shouldn't be accessible from outside.
+
+* [ASP.NET session hijacking with Google and ELMAH](https://www.troyhunt.com/aspnet-session-hijacking-with-google/)
+
+
 axfr
 ----
 
@@ -268,3 +321,9 @@ drupal
 ------
 
 Checks for the presence of the Drupal CMS and outputs the version.
+
+
+wordpress
+---------
+
+Check for the presence of Wordpress and output version.

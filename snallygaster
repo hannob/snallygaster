@@ -139,7 +139,7 @@ def check404(url):
         return global_what404[url]
     rndurl = url + "/" + randstring() + ".htm"
 
-    pdebug("checking 404 page state of %s" % rndurl)
+    pdebug("Checking 404 page state of %s" % rndurl)
     try:
         r = poolmanager.request('GET', rndurl, retries=False,
                                 redirect=False)
@@ -321,6 +321,13 @@ def test_ds_store(url):
 
 
 @DEFAULT
+def test_php_cs_cache(url):
+    r = fetcher(url + '/.php_cs.cache')
+    if r[0:8] == '{"php":"':
+        pout("php_cs_cache", url + "/.php_cs.cache")
+
+
+@DEFAULT
 def test_backupfiles(url):
     what404 = check404(url)
     if not what404:
@@ -330,7 +337,7 @@ def test_backupfiles(url):
         # code, check doesn't make sense.
         return
     for f in STANDARD_PHP_FILES:
-        for ps in ['_FILE_.bak', '_FILE_~', '._FILE_.swp', '%23_FILE_%23']:
+        for ps in ['_FILE_.bak', '_FILE_~', '._FILE_.swp', '%23_FILE_%23', '_FILE_.save']:
             furl = url + "/" + ps.replace('_FILE_', f)
             r = fetcher(furl)
             if any(m in r for m in ['<?php', '<?=']):
@@ -492,7 +499,7 @@ def test_invalidsrc(url):
     except NotImplementedError:
         # This is due to a python bug, please remove in the future.
         # https://bugs.python.org/issue32876
-        pdebug("can't parse due to python bug")
+        pdebug("Can't parse due to python bug")
         return
     srcs = []
     for tag in p.findAll(attrs={"src": True}):
@@ -518,7 +525,7 @@ def test_invalidsrc(url):
         if domain in checkeddomains:
             continue
         checkeddomains.append(domain)
-        pdebug("checking url %s" % realurl)
+        pdebug("Checking url %s" % realurl)
 
         if dnscache(domain) is None:
             pout("invalidsrc_dns", url, escape(src))
@@ -543,7 +550,7 @@ def test_ilias_defaultpw(url):
        or (url + "/login.php" in mainpage_cache[url]['location']
        and 'powered by ILIAS' in fetcher(mainpage_cache[url]['location']))):
         # we're confident we found an ILIAS installation
-        pdebug("ilias found")
+        pdebug("Ilias found")
         try:
             login = poolmanager.request("POST", url + "/ilias.php?cmd=post&baseClass=ilStartUpGUI",
                                         fields={'username': 'root',
@@ -587,6 +594,62 @@ def test_phpunit_eval(url):
 
 
 @DEFAULT
+def test_acmereflect(url):
+    reflect = randstring()
+    r = fetcher(url + "/.well-known/acme-challenge/" + reflect)
+    if r.startswith(reflect):
+        r = poolmanager.request('GET', url + "/.well-known/acme-challenge/<html>" + reflect,
+                                retries=False, redirect=True)
+        if r.status == 200:
+            data = r.data.decode('ascii', errors='ignore')
+        else:
+            data = ""
+        headers = {k.lower(): v for k, v in r.headers.items()}
+        if data.startswith("<html>" + reflect):
+            if ('content-type' in headers) and headers['content-type'].startswith("text/html"):
+                pout("acmereflect_html_sniff", url + "/.well-known/acme-challenge/reflect")
+                return
+            pout("acmereflect_html", url + "/.well-known/acme-challenge/reflect")
+            return
+        pout("acmereflect", url + "/.well-known/acme-challenge/reflect")
+
+
+@DEFAULT
+def test_drupaldb(url):
+    r = fetchpartial(url + "/sites/default/files/.ht.sqlite", 20, binary=True)
+    if r and r[0:13] == b'SQLite format':
+        pout("drupaldb", url + "/sites/default/files/.ht.sqlite")
+
+
+@DEFAULT
+def test_phpwarnings(url):
+    try:
+        r = poolmanager.request("GET", url, headers={"Cookie": "PHPSESSID=in_vålíd"})
+        if 'The session id is too long or contains illegal characters' in r.data.decode('ascii', errors='ignore'):
+            pout("phpwarnings", url)
+    except (urllib3.exceptions.HTTPError, UnicodeError,
+            ConnectionRefusedError, ssl.SSLError):
+        pass
+
+
+@DEFAULT
+def test_adminer(url):
+    r = fetcher(url + "/adminer.php")
+    if "adminer.org" in r:
+        pout("adminer", url + "/adminer.php")
+
+
+@DEFAULT
+def test_elmah(url):
+    r = fetcher(url + "/elmah.axd")
+    if "Error Log for" in r:
+        pout("elmah", url + "/elmah.axd")
+    r = fetcher(url + "/scripts/elmah.axd")
+    if "Error Log for" in r:
+        pout("elmah", url + "/scripts/elmah.axd")
+
+
+@DEFAULT
 @HOSTNAME
 def test_axfr(qhost):
     try:
@@ -622,6 +685,25 @@ def test_drupal(url):
         pass
 
 
+@INFO
+def test_wordpress(url):
+    r = getmainpage(url)
+    try:
+        p = bs4.BeautifulSoup(r, 'html.parser')
+        g = p.findAll("meta", {"name": "generator"})
+        if g != [] and g[0]['content'][:9] == "WordPress":
+            version = g[0]['content'][10:]
+            if not set(version).issubset("0123456789."):
+                return
+            pout("wordpress", url, version)
+    except NotImplementedError:
+        # Necessary ddue to a python bug (remove in the future):
+        # https://bugs.python.org/issue32876
+        return
+    except KeyError:
+        return
+
+
 def new_excepthook(etype, value, traceback):
     if etype == KeyboardInterrupt:
         pdebug("Interrupted by user...")
@@ -642,11 +724,11 @@ sys.excepthook = new_excepthook
 parser = argparse.ArgumentParser()
 parser.add_argument("hosts", nargs='*', help="hostname to scan")
 parser.add_argument("-t", "--tests", nargs=1,
-                    help="comma-separated tests to run.")
+                    help="Comma-separated tests to run.")
 parser.add_argument("--useragent", nargs=1,
                     help="User agent to send")
 parser.add_argument("--nowww", action="store_true",
-                    help="skip scanning www.[host]")
+                    help="Skip scanning www.[host]")
 parser.add_argument("--nohttp", action="store_true",
                     help="Don't scan http")
 parser.add_argument("--nohttps", action="store_true",
@@ -654,11 +736,13 @@ parser.add_argument("--nohttps", action="store_true",
 parser.add_argument("-i", "--info", action="store_true",
                     help="Enable all info tests (no bugs/security vulnerabilities)")
 parser.add_argument("-n", "--noisy", action="store_true",
-                    help="show noisy messages that indicate boring bugs, but no security issue")
+                    help="Show noisy messages that indicate boring bugs, but no security issue")
+parser.add_argument("-p", "--path", default='', action="store", type=str,
+                    help="Base path on server (scans root dir by default)")
 parser.add_argument("-j", "--json", action="store_true",
-                    help="produce JSON output")
+                    help="Produce JSON output")
 parser.add_argument("-d", "--debug", action="store_true",
-                    help="show detailed debugging info")
+                    help="Show detailed debugging info")
 args = parser.parse_args()
 
 # Initializing global pool manager
@@ -682,6 +766,12 @@ else:
 if args.info:
     tests += [g for f, g in locals().items() if hasattr(g, '_is_info_test')]
 
+path = args.path.rstrip("/")
+if len(path) > 0 and path[0] != "/":
+    path = "/" + path
+if path != "":
+    pdebug("Path: %s" % path)
+
 hosts = list(args.hosts)
 if not args.nowww:
     for h in args.hosts:
@@ -699,13 +789,17 @@ json_out = []
 for host in hosts:
     pdebug("Scanning %s" % host)
     for test in tests:
-        pdebug("running %s test" % test.__name__)
+        pdebug("Running %s test" % test.__name__)
         if hasattr(test, '_is_hostname_test'):
             test(host)
         else:
             if not args.nohttp:
-                test("http://" + host)
+                test("http://" + host + path)
             if not args.nohttps:
-                test("https://" + host)
+                test("https://" + host + path)
+
+# clear all sockets
+poolmanager.clear()
+
 if args.json:
     print(json.dumps(json_out))

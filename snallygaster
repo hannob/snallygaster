@@ -345,6 +345,20 @@ def test_backupfiles(url):
 
 
 @DEFAULT
+def test_backup_archives(url):
+    domain = urllib.parse.urlparse(url).hostname
+    hostname = domain.split('.')[0]
+    for fn in ['backup.zip', 'www.zip', 'wwwroot.zip', hostname + '.zip', domain + '.zip']:
+        r = fetchpartial(url + "/" + fn, 3, binary=True)
+        if r == b'PK\x03':
+            pout("backup_archives", url + "/" + fn)
+    for fn in ['backup.tar.gz', 'www.tar.gz', hostname + '.tar.gz', domain + 'tar.gz']:
+        r = fetchpartial(url + "/" + fn, 3, binary=True)
+        if r == b'\x1f\x8b\x08':
+            pout("backup_archives", url + "/" + fn)
+
+
+@DEFAULT
 def test_deadjoe(url):
     r = fetcher(url + '/DEADJOE')
     if 'in JOE when it aborted' in r:

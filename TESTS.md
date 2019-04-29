@@ -133,6 +133,15 @@ secrets will end up on the webspace without a .php extension and thus won't be p
 * [FEROSS: 1% of CMS-Powered Sites Expose Their Database Passwords](https://feross.org/cmsploit/)
 
 
+backup_archives
+---------------
+
+Complete or partial backups of servers are sometimes left online. This test checks for common names
+like backup.tar.gz.
+
+* [Golem.de: Datenlecks durch backup.zip](https://www.golem.de/news/websicherheit-datenlecks-durch-backup-zip-1904-140564.html)
+
+
 deadjoe
 -------
 

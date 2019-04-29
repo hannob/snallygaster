@@ -346,16 +346,22 @@ def test_backupfiles(url):
 
 @DEFAULT
 def test_backup_archives(url):
-    domain = urllib.parse.urlparse(url).hostname
-    hostname = domain.split('.')[0]
-    for fn in ['backup.zip', 'www.zip', 'wwwroot.zip', hostname + '.zip', domain + '.zip']:
-        r = fetchpartial(url + "/" + fn, 3, binary=True)
-        if r == b'PK\x03':
-            pout("backup_archives", url + "/" + fn)
-    for fn in ['backup.tar.gz', 'www.tar.gz', hostname + '.tar.gz', domain + 'tar.gz']:
-        r = fetchpartial(url + "/" + fn, 3, binary=True)
+    what404 = check404(url)
+    if not what404:
+        return
+    for fn in ['backup']:
+        r = fetchpartial(url + "/" + fn + ".zip", 2, binary=True)
+        if r == b'PK':
+            pout("backup_archive", url + "/" + fn + ".zip")
+        r = fetchpartial(url + "/" + fn + ".tar.gz", 3, binary=True)
         if r == b'\x1f\x8b\x08':
-            pout("backup_archives", url + "/" + fn)
+            pout("backup_archive", url + "/" + fn + ".tar.gz")
+        r = fetchpartial(url + "/" + fn + ".tar.bz2", 3, binary=True)
+        if r == b'BZh' or r == b'BZ0':
+            pout("backup_archive", url + "/" + fn + ".tar.bz2")
+        r = fetchpartial(url + "/" + fn + ".tar.xz", 6, binary=True)
+        if r == b'\xFD7zXZ\x00':
+            pout("backup_archive", url + "/" + fn + ".tar.xz")
 
 
 @DEFAULT

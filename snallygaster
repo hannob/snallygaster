@@ -345,10 +345,7 @@ def test_backupfiles(url):
 
 
 @DEFAULT
-def test_backup_archives(url):
-    what404 = check404(url)
-    if not what404:
-        return
+def test_backup_archive(url):
     for fn in ['backup']:
         r = fetchpartial(url + "/" + fn + ".zip", 2, binary=True)
         if r == b'PK':

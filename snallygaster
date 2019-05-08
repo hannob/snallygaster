@@ -346,7 +346,10 @@ def test_backupfiles(url):
 
 @DEFAULT
 def test_backup_archive(url):
-    for fn in ['backup']:
+    host = re.sub('^www.', '', re.sub('(.*//|/.*)', "", url))
+    wwwhost = "www." + host
+
+    for fn in ['backup', 'www', 'wwwdata', 'db', 'htdocs', host, wwwhost]:
         r = fetchpartial(url + "/" + fn + ".zip", 2, binary=True)
         if r == b'PK':
             pout("backup_archive", url + "/" + fn + ".zip")

@@ -285,7 +285,7 @@ def test_coredump(url):
 @DEFAULT
 def test_sftp_config(url):
     r = fetcher(url + '/sftp-config.json')
-    if '"type":' in r and 'ftp' in r:
+    if '"type":' in r and 'ftp' in r and '"save_before_upload"' in r:
         pout("sftp_config", url + "/sftp-config.json")
 
 

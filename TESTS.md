@@ -255,7 +255,7 @@ phpunit_eval
 Tests for a remote code execution vulnerability in a script shipped with older versions of phpunit
 that will simply pass the POST data to PHP's eval.
 
-* [CVE-2017-9841 RCE vulnerability in phpunit](http://phpunit.vulnbusters.com/)
+* [CVE-2017-9841 RCE vulnerability in phpunit](https://web.archive.org/web/20181213234925/http://phpunit.vulnbusters.com/)
 
 
 acmereflect

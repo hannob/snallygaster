@@ -57,6 +57,8 @@ credit and thanks
   development of this script.
 * Thanks to [Sebastian Pipping](https://blog.hartwork.org/) for some help with Python
   programming during the development.
+* Thanks to [Benjamin Balder Bach](https://overtag.dk/) for teachnig me lots of
+  things about Python packaging.
 * Thanks to the organizers of Bornhack, Driving IT, SEC-T and the Rights and Freedom track at
   34C3 for letting me present this work.
 

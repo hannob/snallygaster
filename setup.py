@@ -11,7 +11,7 @@ with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'README.md'),
 
 setuptools.setup(
     name=package_name,
-    version="0.0.2",
+    version="0.0.3",
     description="Tool to scan for secret files on HTTP servers",
     long_description=readme,
     long_description_content_type='text/markdown',

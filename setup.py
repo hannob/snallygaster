@@ -28,7 +28,7 @@ setuptools.setup(
     ],
     license="CC0",
     zip_safe=True,
-    keywords=('security', 'vulnerability', 'http'),
+    keywords=['security', 'vulnerability', 'http'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: System Administrators',

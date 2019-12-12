@@ -510,7 +510,8 @@ def test_invalidsrc(url):
     srcs = []
     for tag in p.findAll(attrs={"src": True}):
         srcs.append(tag['src'])
-    srcs = set(srcs)
+    srcs = list(set(srcs))
+    srcs.sort()
 
     checkeddomains = []
     for src in srcs:

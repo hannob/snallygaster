@@ -14,6 +14,7 @@ setuptools.setup(
     version="0.0.2",
     description="Tool to scan for secret files on HTTP servers",
     long_description=readme,
+    long_description_content_type='text/markdown',
     author="Hanno Böck",
     author_email='hanno@hboeck.de',
     url='https://github.com/hannob/snallygaster',

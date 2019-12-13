@@ -346,10 +346,10 @@ def test_backupfiles(url):
 
 @DEFAULT
 def test_backup_archive(url):
-    host = re.sub('^www.', '', re.sub('(.*//|/.*)', "", url))
-    wwwhost = "www." + host
+    apexhost = re.sub('^www.', '', re.sub('(.*//|/.*)', "", url))
+    wwwhost = "www." + apexhost
 
-    for fn in ['backup', 'www', 'wwwdata', 'db', 'htdocs', host, wwwhost]:
+    for fn in ['backup', 'www', 'wwwdata', 'db', 'htdocs', apexhost, wwwhost]:
         r = fetchpartial(url + "/" + fn + ".zip", 2, binary=True)
         if r == b'PK':
             pout("backup_archive", url + "/" + fn + ".zip")
@@ -357,7 +357,7 @@ def test_backup_archive(url):
         if r == b'\x1f\x8b\x08':
             pout("backup_archive", url + "/" + fn + ".tar.gz")
         r = fetchpartial(url + "/" + fn + ".tar.bz2", 3, binary=True)
-        if r == b'BZh' or r == b'BZ0':
+        if r in [b'BZh', b'BZ0']:
             pout("backup_archive", url + "/" + fn + ".tar.bz2")
         r = fetchpartial(url + "/" + fn + ".tar.xz", 6, binary=True)
         if r == b'\xFD7zXZ\x00':
@@ -390,7 +390,7 @@ def test_sql_dump(url):
         if r == b'\x1f\x8b\x08':
             pout("sql_dump_gz", url + "/" + f + ".gz")
         r = fetchpartial(url + "/" + f + ".bz2", 3, binary=True)
-        if r == b'BZh' or r == b'BZ0':
+        if r in [b'BZh', b'BZ0']:
             pout("sql_dump_bz", url + "/" + f + ".bz2")
         r = fetchpartial(url + "/" + f + ".xz", 6, binary=True)
         if r == b'\xFD7zXZ\x00':
@@ -408,7 +408,8 @@ def test_bitcoin_wallet(url):
 def test_drupal_backup_migrate(url):
     r = fetcher(url + '/sites/default/private/files/backup_migrate/scheduled/test.txt')
     if 'this file should not be publicly accessible' in r:
-        pout("drupal_backup_migrate", url + "/sites/default/private/files/backup_migrate/scheduled/test.txt")
+        pout("drupal_backup_migrate",
+             url + "/sites/default/private/files/backup_migrate/scheduled/test.txt")
 
 
 @DEFAULT
@@ -430,10 +431,9 @@ def test_xaa(url):
         return
     # Check for signs of common compression formats (gz, bzip2, xz, zstd, zip).
     if (r[0:3] == b'\x1f\x8b\x08'
-       or r[0:3] == b'BZh' or r[0:3] == b'BZ0'
-       or r[0:6] == b'\xFD7zXZ\x00'
-       or r[0:4] == b'\x28\xB5\x2F\xFD'
-       or r[0:4] == b'PK\x03\x04'):
+            or r[0:3] in [b'BZh', b'BZ0']
+            or r[0:6] == b'\xFD7zXZ\x00'
+            or r[0:4] in [b'\x28\xB5\x2F\xFD', b'PK\x03\x04']):
         pout("xaa", url + "/xaa")
 
 
@@ -554,8 +554,8 @@ def test_invalidsrc(url):
 def test_ilias_defaultpw(url):
     getmainpage(url)
     if (url + "/ilias.php" in mainpage_cache[url]['location']
-       or (url + "/login.php" in mainpage_cache[url]['location']
-       and 'powered by ILIAS' in fetcher(mainpage_cache[url]['location']))):
+            or (url + "/login.php" in mainpage_cache[url]['location']
+                and 'powered by ILIAS' in fetcher(mainpage_cache[url]['location']))):
         # we're confident we found an ILIAS installation
         pdebug("Ilias found")
         try:
@@ -566,9 +566,9 @@ def test_ilias_defaultpw(url):
                                         headers={'Cookie': 'iltest=;PHPSESSID=' + randstring()})
             data = login.data.decode('ascii', errors='ignore')
             if (('class="ilFailureMessage"' not in data)
-               and ('name="il_message_focus"' not in data)
-               and (('class="ilBlockContent"' in data)
-               or ('class="ilAdminRow"' in data))):
+                    and ('name="il_message_focus"' not in data)
+                    and (('class="ilBlockContent"' in data)
+                         or ('class="ilAdminRow"' in data))):
                 pout("ilias_defaultpw", url, "root/homer")
         except (ConnectionRefusedError, ConnectionResetError,
                 urllib3.exceptions.HTTPError):
@@ -774,7 +774,7 @@ if args.info:
     tests += [g for f, g in locals().items() if hasattr(g, '_is_info_test')]
 
 path = args.path.rstrip("/")
-if len(path) > 0 and path[0] != "/":
+if path != "" and path[0] != "/":
     path = "/" + path
 if path != "":
     pdebug("Path: %s" % path)

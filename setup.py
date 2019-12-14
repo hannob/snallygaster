@@ -6,8 +6,9 @@ import setuptools
 
 package_name = 'snallygaster'
 
-with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'README.md'), encoding='utf-8') as f:
-    readme = f.read()
+f = open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'README.md'), encoding='utf-8')
+readme = f.read()
+f.close()
 
 setuptools.setup(
     name=package_name,

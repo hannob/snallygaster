@@ -95,11 +95,11 @@ def fetcher(fullurl, binary=False):
     try:
         r = poolmanager.request('GET', fullurl, retries=False,
                                 redirect=False)
-        if r.status == 200:
-            if binary:
-                return r.data
-            return r.data.decode('ascii', errors='ignore')
-        return ""
+        if r.status != 200:
+            return ""
+        if binary:
+            return r.data
+        return r.data.decode('ascii', errors='ignore')
     except (urllib3.exceptions.HTTPError, UnicodeError,
             ConnectionRefusedError, ssl.SSLError):
         return ""

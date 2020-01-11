@@ -299,6 +299,15 @@ pieces of information, it shouldn't be accessible from outside.
 * [ASP.NET session hijacking with Google and ELMAH](https://www.troyhunt.com/aspnet-session-hijacking-with-google/)
 
 
+citrix_rce
+----------
+
+Check for the Citrix CVE-2019-19781 RCE / directory traversal.
+
+* [Vulnerability in Citrix Application Delivery Controller and Citrix Gateway](https://support.citrix.com/article/CTX267027)
+* [Citrix NetScaler CVE-2019-19781: What You Need to Know (Tripwire VERT)](https://www.tripwire.com/state-of-security/vert/citrix-netscaler-cve-2019-19781-what-you-need-to-know/)
+
+
 axfr
 ----
 

@@ -658,6 +658,19 @@ def test_elmah(url):
 
 
 @DEFAULT
+def test_citrix_rce(url):
+    try:
+        r = poolmanager.request('GET', url + "/vpn/../vpns/portal/tips.html",
+                                retries=False, redirect=False,
+                                headers={"NSC_USER": "x", "NSC_NONCE": "x"})
+        if '<div id="nexttip">' in r.data.decode('ascii', errors='ignore'):
+            pout("citrix_rce", url + "/vpn/../vpns/portal/tips.html")
+    except (urllib3.exceptions.HTTPError, UnicodeError,
+            ConnectionRefusedError, ssl.SSLError):
+        pass
+
+
+@DEFAULT
 @HOSTNAME
 def test_axfr(qhost):
     try:
@@ -759,6 +772,8 @@ if args.useragent:
     user_agent = {'user-agent': args.useragent[0]}
 poolmanager = urllib3.PoolManager(10, headers=user_agent)
 
+# This is necessary for directory traversal attacks like citrix_cve
+urllib3.util.url.NORMALIZABLE_SCHEMES = ()
 
 if args.tests is None:
     tests = [g for f, g in locals().items() if hasattr(g, '_is_default_test')]

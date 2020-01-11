@@ -4,9 +4,9 @@ How to make a new release
 =========================
 
 * raise version number in *setup.py*.
-* Build the wheel:
+* Build the wheel and source distribution:
   ```
-  python setup.py bdist_wheel
+  python setup.py bdist_wheel sdist
   ```
 * Upload to PyPI:
   ```

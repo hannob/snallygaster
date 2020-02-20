@@ -84,7 +84,7 @@ def pout(cause, url, misc="", noisymsg=False):
 
 
 def randstring():
-    return "".join(random.choice(string.ascii_lowercase) for i in range(8))
+    return "".join(random.SystemRandom().choice(string.ascii_lowercase) for i in range(8))
 
 
 def escape(msg):

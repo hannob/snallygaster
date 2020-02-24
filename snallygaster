@@ -451,14 +451,17 @@ def test_optionsbleed(url):
         return
     if allow == "":
         pout("options_empty", url, noisymsg=True)
-    elif re.match("^[a-zA-Z]+(-[a-zA-Z]+)? *(, *[a-zA-Z]+(-[a-zA-Z]+)? *)*$", allow):
-        z = [x.strip() for x in allow.split(',')]
+        return
+
+    z = [x.strip() for x in allow.split(',')]
+    if re.match("^[a-zA-Z-]*$", "".join(z)):
         if len(z) > len(set(z)):
             pout("options_duplicates", url, escape(allow), noisymsg=True)
-    elif re.match("^[a-zA-Z]+(-[a-zA-Z]+)? *( +[a-zA-Z]+(-[a-zA-Z]+)? *)+$", allow):
+        return
+    if re.match("^[a-zA-Z- ]*$", allow):
         pout("options_spaces", url, escape(allow))
-    else:
-        pout("optionsbleed", url, escape(allow))
+        return
+    pout("optionsbleed", url, escape(allow))
 
 
 @DEFAULT

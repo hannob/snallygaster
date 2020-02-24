@@ -482,11 +482,7 @@ def test_privatekey(url):
 def test_sshkey(url):
     for fn in ["id_rsa", "id_dsa", ".ssh/id_rsa", ".ssh/id_dsa"]:
         r = fetcher(url + "/" + fn)
-        if 'BEGIN PRIVATE KEY' in r:
-            pout("sshkey", "%s/%s" % (url, fn))
-        if 'BEGIN RSA PRIVATE KEY' in r:
-            pout("sshkey", "%s/%s" % (url, fn))
-        if 'BEGIN DSA PRIVATE KEY' in r:
+        if 'BEGIN' in r and 'PRIVATE KEY' in r:
             pout("sshkey", "%s/%s" % (url, fn))
 
 

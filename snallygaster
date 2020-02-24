@@ -453,6 +453,11 @@ def test_optionsbleed(url):
         pout("options_empty", url, noisymsg=True)
         return
 
+    # catch some obvious cases first
+    if (",," in allow) or (allow[0]==",") or (allow[-1]==","):
+        pout("optionsbleed", url, escape(allow))
+        return
+
     z = [x.strip() for x in allow.split(',')]
     if re.match("^[a-zA-Z-]*$", "".join(z)):
         if len(z) > len(set(z)):

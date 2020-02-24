@@ -454,7 +454,7 @@ def test_optionsbleed(url):
         return
 
     # catch some obvious cases first
-    if (",," in allow) or (allow[0]==",") or (allow[-1]==","):
+    if (",," in allow) or (allow[0] == ",") or (allow[-1] == ","):
         pout("optionsbleed", url, escape(allow))
         return
 

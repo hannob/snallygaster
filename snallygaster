@@ -747,7 +747,7 @@ sys.excepthook = new_excepthook
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("hosts", nargs='*', help="hostname to scan")
+parser.add_argument("hosts", nargs='+', help="hostname to scan")
 parser.add_argument("-t", "--tests", nargs=1,
                     help="Comma-separated tests to run.")
 parser.add_argument("--useragent", nargs=1,

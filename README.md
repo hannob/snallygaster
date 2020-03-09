@@ -26,7 +26,12 @@ pip3 install snallygaster
 ```
 
 It's a simple python 3 script, so you can just download the file "snallygaster"
-and execute it. Dependencies are urllib3, beautifulsoup4 and dnspython.
+and execute it. Dependencies are urllib3, beautifulsoup4 and dnspython. In
+Debian- or Ubuntu-based distributions you can install them via:
+
+```
+apt install python3-dnspython python3-urllib3 python3-bs4
+```
 
 faq
 ===

@@ -46,6 +46,7 @@ readable. This allows downloading the full repository.
 * [Internetwache: Don't publicly expose .git or how we downloaded your website's sourcecode](https://en.internetwache.org/dont-publicly-expose-git-or-how-we-downloaded-your-websites-sourcecode-an-analysis-of-alexas-1m-28-07-2015/)
 * [Golem.de: Riskante Git-Verzeichnisse](https://www.golem.de/news/websicherheit-riskante-git-verzeichnisse-1507-115476.html)
 * [GitTools - scripts to download .git directories](https://github.com/internetwache/GitTools)
+* [git-dumper - script to download .git dir, faster than GitTools](https://github.com/arthaud/git-dumper)
 
 
 svn_dir

@@ -43,7 +43,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module='bs4')
 # This disables warnings about the lack of certificate verification.
 # Usually this is a bad idea, but for this tool we want to find HTTPS leaks
 # even if they are shipped with invalid certificates.
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)  # noqa: DUO131
 
 
 def DEFAULT(f):

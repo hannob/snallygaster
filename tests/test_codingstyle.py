@@ -12,6 +12,7 @@ class TestCodingstyle(unittest.TestCase):
         subprocess.run(["pyflakes"] + pyfiles, check=True)
         subprocess.run(["pylint", "--disable=missing-docstring,invalid-name"]
                        + pyfiles, check=True)
+        subprocess.run(["flake8", "--select=DUO"] + pyfiles, check=True)
 
 
 if __name__ == '__main__':

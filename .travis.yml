@@ -7,6 +7,6 @@ python:
   - "nightly"
 install:
   - pip install -r requirements.txt
-  - pip install pycodestyle pyflakes pylint
+  - pip install pycodestyle pyflakes pylint dlint
 script:
   - python3 -m unittest

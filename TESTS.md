@@ -320,6 +320,14 @@ to be publicly accessible.
 * [D. J. Bernstein: How the AXFR protocol works](https://cr.yp.to/djbdns/axfr-notes.html)
 
 
+openmonit
+---------
+
+Check for Monit web interface with default username and password.
+
+* [Monit: Configuration file with default username/password combination (admin/monit)](https://bitbucket.org/tildeslash/monit/issues/881/configuration-file-with-default-username)
+
+
 Info tests
 ==========
 

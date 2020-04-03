@@ -693,6 +693,20 @@ def test_axfr(qhost):
             pass
 
 
+@DEFAULT
+@HOSTNAME
+def test_openmonit(qhost):
+    url = 'http://%s:2812/' % qhost
+    headers = urllib3.util.make_headers(basic_auth='admin:monit')
+    try:
+        r = poolmanager.request('GET', url, headers=headers)
+        if '<title>Monit:' in r.data.decode('ascii', errors='ignore'):
+            pout("openmonit", url)
+    except (urllib3.exceptions.HTTPError, UnicodeError,
+            ConnectionRefusedError, ssl.SSLError):
+        pass
+
+
 @INFO
 def test_drupal(url):
     r = fetcher(url + "/CHANGELOG.txt")

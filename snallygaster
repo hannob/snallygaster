@@ -93,8 +93,7 @@ def escape(msg):
 
 def fetcher(fullurl, binary=False):
     try:
-        r = poolmanager.request('GET', fullurl, retries=False,
-                                redirect=False)
+        r = pool.request('GET', fullurl, retries=False, redirect=False)
         if r.status != 200:
             return ""
         if binary:
@@ -107,8 +106,8 @@ def fetcher(fullurl, binary=False):
 
 def fetchpartial(fullurl, size, returnsize=False, binary=False):
     try:
-        r = poolmanager.request('GET', fullurl, retries=False,
-                                redirect=False, preload_content=False)
+        r = pool.request('GET', fullurl, retries=False, redirect=False,
+                         preload_content=False)
         if r.status == 200:
             ret = r.read(size)
             if binary:
@@ -141,8 +140,7 @@ def check404(url):
 
     pdebug("Checking 404 page state of %s" % rndurl)
     try:
-        r = poolmanager.request('GET', rndurl, retries=False,
-                                redirect=False)
+        r = pool.request('GET', rndurl, retries=False, redirect=False)
     except (urllib3.exceptions.HTTPError, UnicodeError,
             ConnectionRefusedError, ssl.SSLError):
         return False
@@ -171,8 +169,7 @@ def getmainpage(url):
         return mainpage_cache[url]['content']
 
     try:
-        r = poolmanager.request('GET', url, retries=False,
-                                redirect=True)
+        r = pool.request('GET', url, retries=False, redirect=True)
         if r.status == 200:
             data = r.data.decode('ascii', errors='ignore')
         else:
@@ -440,8 +437,7 @@ def test_xaa(url):
 @DEFAULT
 def test_optionsbleed(url):
     try:
-        r = poolmanager.request('OPTIONS', url, retries=False,
-                                redirect=False)
+        r = pool.request('OPTIONS', url, retries=False, redirect=False)
     except (ConnectionRefusedError, urllib3.exceptions.HTTPError,
             UnicodeError):
         return
@@ -543,8 +539,7 @@ def test_invalidsrc(url):
             continue
 
         try:
-            r = poolmanager.request('GET', realurl, retries=False,
-                                    redirect=False)
+            r = pool.request('GET', realurl, retries=False, redirect=False)
             if r.status >= 400:
                 pout("invalidsrc_http", url, escape(src))
         except UnicodeEncodeError:
@@ -563,11 +558,11 @@ def test_ilias_defaultpw(url):
         # we're confident we found an ILIAS installation
         pdebug("Ilias found")
         try:
-            login = poolmanager.request("POST", url + "/ilias.php?cmd=post&baseClass=ilStartUpGUI",
-                                        fields={'username': 'root',
-                                                'password': 'homer',
-                                                'cmd[doStandardAuthentication]': 'Login'},
-                                        headers={'Cookie': 'iltest=;PHPSESSID=' + randstring()})
+            login = pool.request("POST", url + "/ilias.php?cmd=post&baseClass=ilStartUpGUI",
+                                 fields={'username': 'root',
+                                         'password': 'homer',
+                                         'cmd[doStandardAuthentication]': 'Login'},
+                                 headers={'Cookie': 'iltest=;PHPSESSID=' + randstring()})
             data = login.data.decode('ascii', errors='ignore')
             if (('class="ilFailureMessage"' not in data)
                     and ('name="il_message_focus"' not in data)
@@ -583,7 +578,7 @@ def test_ilias_defaultpw(url):
 def test_cgiecho(url):
     for pre in [url + "/cgi-bin/cgiecho", url + "/cgi-sys/cgiecho"]:
         try:
-            r = poolmanager.request("GET", pre + "/" + randstring())
+            r = pool.request("GET", pre + "/" + randstring())
             if r.status == 500 and '<P><EM>cgiemail' in r.data.decode('ascii', errors='ignore'):
                 pout("cgiecho", pre)
         except (ConnectionRefusedError, ConnectionResetError,
@@ -594,8 +589,8 @@ def test_cgiecho(url):
 @DEFAULT
 def test_phpunit_eval(url):
     try:
-        r = poolmanager.request("POST", url + "/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php",
-                                body='<?php echo(substr_replace("hello", "12", 2, 2));')
+        r = pool.request("POST", url + "/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php",
+                         body='<?php echo(substr_replace("hello", "12", 2, 2));')
         data = r.data.decode('ascii', errors='ignore')
         if data == "he12o":
             pout("phpunit_eval", url + "/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php")
@@ -609,8 +604,8 @@ def test_acmereflect(url):
     reflect = randstring()
     r = fetcher(url + "/.well-known/acme-challenge/" + reflect)
     if r.startswith(reflect):
-        r = poolmanager.request('GET', url + "/.well-known/acme-challenge/<html>" + reflect,
-                                retries=False, redirect=True)
+        r = pool.request('GET', url + "/.well-known/acme-challenge/<html>" + reflect,
+                         retries=False, redirect=True)
         if r.status == 200:
             data = r.data.decode('ascii', errors='ignore')
         else:
@@ -635,7 +630,7 @@ def test_drupaldb(url):
 @DEFAULT
 def test_phpwarnings(url):
     try:
-        r = poolmanager.request("GET", url, headers={"Cookie": "PHPSESSID=in_vålíd"})
+        r = pool.request("GET", url, headers={"Cookie": "PHPSESSID=in_vålíd"})
         if ('The session id is too long or contains illegal characters'
                 in r.data.decode('ascii', errors='ignore')):
             pout("phpwarnings", url)
@@ -664,9 +659,9 @@ def test_elmah(url):
 @DEFAULT
 def test_citrix_rce(url):
     try:
-        r = poolmanager.request('GET', url + "/vpn/../vpns/portal/tips.html",
-                                retries=False, redirect=False,
-                                headers={"NSC_USER": "x", "NSC_NONCE": "x"})
+        r = pool.request('GET', url + "/vpn/../vpns/portal/tips.html",
+                         retries=False, redirect=False,
+                         headers={"NSC_USER": "x", "NSC_NONCE": "x"})
         if '<div id="nexttip">' in r.data.decode('ascii', errors='ignore'):
             pout("citrix_rce", url + "/vpn/../vpns/portal/tips.html")
     except (urllib3.exceptions.HTTPError, UnicodeError,
@@ -699,7 +694,7 @@ def test_openmonit(qhost):
     url = 'http://%s:2812/' % qhost
     headers = urllib3.util.make_headers(basic_auth='admin:monit')
     try:
-        r = poolmanager.request('GET', url, headers=headers)
+        r = pool.request('GET', url, headers=headers)
         if '<title>Monit:' in r.data.decode('ascii', errors='ignore'):
             pout("openmonit", url)
     except (urllib3.exceptions.HTTPError, UnicodeError,
@@ -788,7 +783,7 @@ args = parser.parse_args()
 user_agent = {'user-agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0'}
 if args.useragent:
     user_agent = {'user-agent': args.useragent[0]}
-poolmanager = urllib3.PoolManager(10, headers=user_agent)
+pool = urllib3.PoolManager(10, headers=user_agent)
 
 # This is necessary for directory traversal attacks like citrix_cve
 urllib3.util.url.NORMALIZABLE_SCHEMES = ()
@@ -840,7 +835,7 @@ for host in hosts:
                 test("https://" + host + path)
 
 # clear all sockets
-poolmanager.clear()
+pool.clear()
 
 if args.json:
     print(json.dumps(json_out))

@@ -166,7 +166,7 @@ those can come at a high cost.
 
 
 drupal_backup_migrate
--
+---------------------
 
 The Drupal backup_migrate plugin stores backups of the CMS database in the web folder.
 Access is prevented with an Apache .htaccess file, but that does not work on other web servers.

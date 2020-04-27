@@ -738,6 +738,19 @@ def test_wordpress(url):
         return
 
 
+@INFO
+def test_mailman(url):
+    for p in ['/mailman/listinfo', '/mailman/listinfo.cgi', '(mailman/listinfo.py']:
+        r = fetcher(url + p)
+        if 'Delivered by Mailman' in r:
+            ver = re.findall('version ([0-9.]+)', r)
+            if len(ver) == 0:
+                ver = "unknown"
+            else:
+                ver = ver[0]
+            pout("mailman", "%s%s %s" % (url, p, ver))
+
+
 def new_excepthook(etype, value, traceback):
     if etype == KeyboardInterrupt:
         pdebug("Interrupted by user...")

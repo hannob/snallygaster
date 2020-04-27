@@ -345,3 +345,9 @@ wordpress
 ---------
 
 Check for the presence of Wordpress and output version.
+
+
+mailman
+-------
+
+Check for mailman

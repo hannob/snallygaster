@@ -744,11 +744,13 @@ def test_mailman(url):
         r = fetcher(url + p)
         if 'Delivered by Mailman' in r:
             ver = re.findall('version ([0-9.]+)', r)
+            ver = "unknown"
             if len(ver) == 0:
-                ver = "unknown"
-            else:
                 ver = ver[0]
-            pout("mailman", "%s%s %s" % (url, p, ver))
+            if 'There currently are no publicly-advertised' in r:
+                pout("mailman_unused", "%s%s %s" % (url, p, ver))
+            else:
+                pout("mailman", "%s%s %s" % (url, p, ver))
 
 
 def new_excepthook(etype, value, traceback):

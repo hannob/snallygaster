@@ -744,9 +744,10 @@ def test_mailman(url):
         r = fetcher(url + p)
         if 'Delivered by Mailman' in r:
             ver = re.findall('version ([0-9.]+)', r)
-            ver = "unknown"
-            if len(ver) == 0:
+            if len(ver) > 0:
                 ver = ver[0]
+            else:
+                ver = "unknown"
             if 'There currently are no publicly-advertised' in r:
                 pout("mailman_unused", "%s%s %s" % (url, p, ver))
             else:

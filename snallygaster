@@ -740,7 +740,7 @@ def test_wordpress(url):
 
 @INFO
 def test_mailman(url):
-    for p in ['/mailman/listinfo', '/mailman/listinfo.cgi', '(mailman/listinfo.py']:
+    for p in ['/mailman/listinfo', '/mailman/listinfo.cgi', '/mailman/listinfo.py']:
         r = fetcher(url + p)
         if 'Delivered by Mailman' in r:
             ver = re.findall('version ([0-9.]+)', r)

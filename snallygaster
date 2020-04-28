@@ -740,18 +740,18 @@ def test_wordpress(url):
 
 @INFO
 def test_mailman(url):
-    for p in ['/mailman/listinfo', '/mailman/listinfo.cgi', '/mailman/listinfo.py']:
-        r = fetcher(url + p)
-        if 'Delivered by Mailman' in r:
-            ver = re.findall('version ([0-9.]+)', r)
-            if len(ver) > 0:
-                ver = ver[0]
-            else:
-                ver = "unknown"
-            if 'There currently are no publicly-advertised' in r:
-                pout("mailman_unused", "%s%s %s" % (url, p, ver))
-            else:
-                pout("mailman", "%s%s %s" % (url, p, ver))
+    murl = '%s/mailman/listinfo' % url
+    r = fetcher(murl);
+    if 'Delivered by Mailman' in r:
+        ver = re.findall('version ([0-9.]+)', r)
+        if len(ver) > 0:
+            ver = ver[0]
+        else:
+            ver = "unknown"
+        if 'There currently are no publicly-advertised' in r:
+            pout("mailman_unused", "%s %s" % (murl, ver))
+        else:
+            pout("mailman", "%s %s" % (murl, ver))
 
 
 def new_excepthook(etype, value, traceback):

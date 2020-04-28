@@ -741,7 +741,7 @@ def test_wordpress(url):
 @INFO
 def test_mailman(url):
     murl = '%s/mailman/listinfo' % url
-    r = fetcher(murl);
+    r = fetcher(murl)
     if 'Delivered by Mailman' in r:
         ver = re.findall('version ([0-9.]+)', r)
         if len(ver) > 0:

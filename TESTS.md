@@ -350,4 +350,12 @@ Check for the presence of Wordpress and output version.
 mailman
 -------
 
-Check for mailman
+Check for mailman and output version.
+
+
+composer
+--------
+
+Check for composer.json/composer.lock files. Can be checked with the
+[Symfony security check](https://symfony.com/doc/current/setup.html#security-checker)
+afterwards.

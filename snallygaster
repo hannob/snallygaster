@@ -754,6 +754,15 @@ def test_mailman(url):
             pout("mailman", "%s %s" % (murl, ver))
 
 
+@INFO
+def test_composer(url):
+    for c in ['composer.json', 'composer.lock']:
+        furl = url + '/' + c
+        r = fetcher(furl)
+        if '"require":' or '"packages":' in r:
+            pout("composer", furl)
+
+
 def new_excepthook(etype, value, traceback):
     if etype == KeyboardInterrupt:
         pdebug("Interrupted by user...")

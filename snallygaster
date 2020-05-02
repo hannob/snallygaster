@@ -670,6 +670,28 @@ def test_citrix_rce(url):
 
 
 @DEFAULT
+def test_installer(url):
+    r = getmainpage(url)
+    if (mainpage_cache[url]['location'].endswith("wp-admin/setup-config.php")
+       or 'href="wp-admin/css/install.css"' in r):
+        pout("installer_wordpress", url)
+    elif mainpage_cache[url]['location'].endswith("installation/index.php"):
+        pout("installer_joomla", url)
+    elif mainpage_cache[url]['location'].endswith("typo3/install.php"):
+        pout("installer_typo3", url)
+    elif mainpage_cache[url]['location'].endswith("install.php"):
+        pout("installer_drupal", url)
+    elif mainpage_cache[url]['location'].endswith("serendipity_admin.php"):
+        pout("installer_s9y", url)
+    elif 'LocalSettings.php not found' in r:
+        pout("installer_mediawiki", url)
+    elif '8 easy steps and will take around 5 minutes' in r:
+        pout("installer_matomo", url)
+    elif 'Create an <strong>admin account</strong>' in r:
+        pout("installer_nextcloud", url)
+
+
+@DEFAULT
 @HOSTNAME
 def test_axfr(qhost):
     try:

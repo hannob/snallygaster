@@ -309,6 +309,14 @@ Check for the Citrix CVE-2019-19781 RCE / directory traversal.
 * [Citrix NetScaler CVE-2019-19781: What You Need to Know (Tripwire VERT)](https://www.tripwire.com/state-of-security/vert/citrix-netscaler-cve-2019-19781-what-you-need-to-know/)
 
 
+installer
+---------
+
+Search for unused installers of common PHP web applications.
+In most cases a stale installer can be used for code execution by
+installing the application and uploading a plugin.
+
+
 axfr
 ----
 

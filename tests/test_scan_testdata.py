@@ -8,12 +8,11 @@ import threading
 
 TESTDATA_REPO = "https://github.com/hannob/snallygaster-testdata"
 
-TESTDATA = {
-            "backup_archive": "[backup_archive] https://localhost:4443/backup.zip",
-            "git_dir" : "[git_dir] https://localhost:4443/.git/config",
-            "deadjoe" : "[deadjoe] https://localhost:4443/DEADJOE",
-            "coredump" : "[coredump] https://localhost:4443/core",
-            "backupfiles" : "[backupfiles] https://localhost:4443/index.php~",
+TESTDATA = {"backup_archive": "[backup_archive] https://localhost:4443/backup.zip",
+            "git_dir": "[git_dir] https://localhost:4443/.git/config",
+            "deadjoe": "[deadjoe] https://localhost:4443/DEADJOE",
+            "coredump": "[coredump] https://localhost:4443/core",
+            "backupfiles": "[backupfiles] https://localhost:4443/index.php~",
             }
 
 
@@ -34,7 +33,7 @@ class TestScanTestdata(unittest.TestCase):
         olddir = os.getcwd()
         os.chdir(tmp + "/testdata")
         httpd = http.server.HTTPServer(('localhost', 4443), http.server.SimpleHTTPRequestHandler)
-        httpd.socket = ssl.wrap_socket(httpd.socket, certfile=tmp +'/testdata/testserver.pem', server_side=True)
+        httpd.socket = ssl.wrap_socket(httpd.socket, certfile=tmp + '/testdata/testserver.pem')
         t = threading.Thread(target=httpd.serve_forever)
         t.daemon = True
         t.start()

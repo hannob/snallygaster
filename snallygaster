@@ -9,7 +9,6 @@
 
 import argparse
 import sys
-import ssl
 import random
 import string
 import re

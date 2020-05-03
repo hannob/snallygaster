@@ -113,7 +113,7 @@ ds_store
 The Apple OS X file manager Finder creates these files. They may leak directory and file names.
 
 * [Internetwache: Scanning the Alexa Top 1M for .DS_Store files](https://en.internetwache.org/scanning-the-alexa-top-1m-for-ds-store-files-12-03-2018/)
-
+* [ds_stope_exp (recursively download .DS_Store files)](https://github.com/lijiejie/ds_store_exp)
 
 php_cs_cache
 ------------

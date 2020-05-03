@@ -57,12 +57,6 @@ Identical to git_dir issue, just with Subversion instead of Git.
 * [svnscaper - script to download .svn directories](https://github.com/hannob/svnscraper)
 
 
-cvs_dir
--------
-
-Identical to git_dir issue, just with CVS instead of Git.
-
-
 apache_server_status
 --------------------
 

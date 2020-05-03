@@ -100,7 +100,7 @@ def fetcher(fullurl, binary=False):
             return r.data
         return r.data.decode('ascii', errors='ignore')
     except (urllib3.exceptions.HTTPError, UnicodeError,
-            ConnectionRefusedError, ssl.SSLError):
+            ConnectionRefusedError):
         return ""
 
 
@@ -126,7 +126,7 @@ def fetchpartial(fullurl, size, returnsize=False, binary=False):
             return rv
         r.release_conn()
     except (urllib3.exceptions.HTTPError, UnicodeError,
-            ConnectionRefusedError, ssl.SSLError):
+            ConnectionRefusedError):
         pass
     if returnsize:
         return ("", 0)
@@ -142,7 +142,7 @@ def check404(url):
     try:
         r = pool.request('GET', rndurl, retries=False, redirect=False)
     except (urllib3.exceptions.HTTPError, UnicodeError,
-            ConnectionRefusedError, ssl.SSLError):
+            ConnectionRefusedError):
         return False
     what404 = {}
     what404['state'] = (r.status != 200)
@@ -180,7 +180,7 @@ def getmainpage(url):
         else:
             redir = ""
     except (urllib3.exceptions.HTTPError, UnicodeError,
-            ConnectionRefusedError, ssl.SSLError):
+            ConnectionRefusedError):
         mainpage_cache[url] = {}
         mainpage_cache[url]['httpcode'] = 0
         mainpage_cache[url]['location'] = ""
@@ -632,7 +632,7 @@ def test_phpwarnings(url):
                 in r.data.decode('ascii', errors='ignore')):
             pout("phpwarnings", url)
     except (urllib3.exceptions.HTTPError, UnicodeError,
-            ConnectionRefusedError, ssl.SSLError):
+            ConnectionRefusedError):
         pass
 
 
@@ -662,7 +662,7 @@ def test_citrix_rce(url):
         if '<div id="nexttip">' in r.data.decode('ascii', errors='ignore'):
             pout("citrix_rce", url + "/vpn/../vpns/portal/tips.html")
     except (urllib3.exceptions.HTTPError, UnicodeError,
-            ConnectionRefusedError, ssl.SSLError):
+            ConnectionRefusedError):
         pass
 
 
@@ -717,7 +717,7 @@ def test_openmonit(qhost):
         if '<title>Monit:' in r.data.decode('ascii', errors='ignore'):
             pout("openmonit", url)
     except (urllib3.exceptions.HTTPError, UnicodeError,
-            ConnectionRefusedError, ssl.SSLError):
+            ConnectionRefusedError):
         pass
 
 

@@ -13,6 +13,8 @@ TESTDATA = {"backup_archive": "[backup_archive] https://localhost:4443/backup.zi
             "deadjoe": "[deadjoe] https://localhost:4443/DEADJOE",
             "coredump": "[coredump] https://localhost:4443/core",
             "backupfiles": "[backupfiles] https://localhost:4443/index.php~",
+            "ds_store": "[ds_store] https://localhost:4443/.DS_Store",
+            "privatekey": "[privatekey_pkcs8] https://localhost:4443/server.key",
             }
 
 

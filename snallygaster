@@ -99,11 +99,12 @@ def fetcher(fullurl, binary=False, getredir=False):
             headers = {k.lower(): v for k, v in r.headers.items()}
             if 'location' in headers:
                 redir = headers['location']
-        if r.status != 200:
+        elif r.status != 200:
             data = ""
-        if binary:
+        elif binary:
             data = r.data
-        data = r.data.decode('ascii', errors='ignore')
+        else:
+            data = r.data.decode('ascii', errors='ignore')
     except (urllib3.exceptions.HTTPError, UnicodeError,
             ConnectionRefusedError):
         data = ""

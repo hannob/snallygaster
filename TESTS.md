@@ -311,6 +311,12 @@ In most cases a stale installer can be used for code execution by
 installing the application and uploading a plugin.
 
 
+wpsubdir
+--------
+
+Search for unused Wordpress installers in /wordpress/ subdir.
+
+
 axfr
 ----
 

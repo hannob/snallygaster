@@ -90,17 +90,26 @@ def escape(msg):
     return repr(msg)[1:-1]
 
 
-def fetcher(fullurl, binary=False):
+def fetcher(fullurl, binary=False, getredir=False):
+    data = ""
+    redir = ""
     try:
         r = pool.request('GET', fullurl, retries=False, redirect=False)
+        if getredir:
+            headers = {k.lower(): v for k, v in r.headers.items()}
+            if 'location' in headers:
+                redir = headers['location']
         if r.status != 200:
-            return ""
+            data = ""
         if binary:
-            return r.data
-        return r.data.decode('ascii', errors='ignore')
+            data = r.data
+        data = r.data.decode('ascii', errors='ignore')
     except (urllib3.exceptions.HTTPError, UnicodeError,
             ConnectionRefusedError):
-        return ""
+        data = ""
+    if getredir:
+        return data, redir
+    return data
 
 
 def fetchpartial(fullurl, size, returnsize=False, binary=False):
@@ -677,6 +686,14 @@ def test_installer(url):
         pout("installer_matomo", url)
     elif 'Create an <strong>admin account</strong>' in r:
         pout("installer_nextcloud", url)
+
+
+@DEFAULT
+def test_wpsubdir(url):
+    r, redir = fetcher(url + "/wordpress/", getredir=True)
+    if (redir.endswith("wp-admin/setup-config.php")
+       or 'href="wp-admin/css/install.css"' in r):
+        pout("wpsubdir", url + "/wordpress/")
 
 
 @DEFAULT

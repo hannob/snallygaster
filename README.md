@@ -39,6 +39,7 @@ distribution packages
 
 Some Linux and BSD systems have snallygaster packaged:
 
+* [Gentoo](https://packages.gentoo.org/packages/net-analyzer/snallygaster)
 * [NetBSD](https://pkgsrc.se/security/snallygaster)
 * [Arch Linux (git version)](https://aur.archlinux.org/packages/snallygaster-git/)
 

@@ -1,5 +1,6 @@
 # snallygaster
-Tool to scan for secret files on HTTP servers
+
+Finds file leaks and other security problems on HTTP servers.
 
 what?
 =====

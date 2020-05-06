@@ -33,6 +33,14 @@ Debian- or Ubuntu-based distributions you can install them via:
 apt install python3-dnspython python3-urllib3 python3-bs4
 ```
 
+distribution packages
+=====================
+
+Some Linux and BSD systems have snallygaster packaged:
+
+* [NetBSD](https://pkgsrc.se/security/snallygaster)
+* [Arch Linux (git version)](https://aur.archlinux.org/packages/snallygaster-git/)
+
 faq
 ===
 

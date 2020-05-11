@@ -336,6 +336,13 @@ Check for Monit web interface with default username and password.
 * [Monit: Configuration file with default username/password combination (admin/monit)](https://bitbucket.org/tildeslash/monit/issues/881/configuration-file-with-default-username)
 
 
+openelasticsearch
+-----------------
+
+Check for open Elasticsearch instances with admin:admin (default password
+from Open Distro for Elasticsearch).
+
+
 Info tests
 ==========
 

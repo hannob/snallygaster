@@ -730,6 +730,26 @@ def test_openmonit(qhost):
         pass
 
 
+@DEFAULT
+@HOSTNAME
+def test_openelasticsearch(qhost):
+    headers = urllib3.util.make_headers(basic_auth='admin:admin')
+    try:
+        r = pool.request('GET', 'http://%s:9200' % qhost, headers=headers)
+        if '"cluster_name" :' in r.data.decode('ascii', errors='ignore'):
+            pout("openelasticsearch", 'http://%s:9200' % qhost)
+    except (urllib3.exceptions.HTTPError, UnicodeError,
+            ConnectionRefusedError):
+        pass
+    try:
+        r = pool.request('GET', 'https://%s:9200' % qhost, headers=headers)
+        if '"cluster_name" :' in r.data.decode('ascii', errors='ignore'):
+            pout("openelasticsearch", 'https://%s:9200' % qhost)
+    except (urllib3.exceptions.HTTPError, UnicodeError,
+            ConnectionRefusedError):
+        pass
+
+
 @INFO
 def test_drupal(url):
     r = fetcher(url + "/CHANGELOG.txt")

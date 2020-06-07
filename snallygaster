@@ -168,6 +168,8 @@ def check404(url):
         what404['sql'] = True
     else:
         what404['sql'] = False
+    if 'you have <code>DEBUG = True</code>' in what404['content']:
+        pout("django_debug", rndurl)
 
     global_what404[url] = what404
     return what404

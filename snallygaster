@@ -212,7 +212,7 @@ def dnscache(qhost):
         socket.inet_aton(qhost)
         dns_cache[qhost] = qhost
         return qhost
-    except socket.error:
+    except OSError:
         pass
     try:
         dnsanswer = dns.resolver.query(qhost, 'A')

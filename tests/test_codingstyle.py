@@ -13,6 +13,7 @@ class TestCodingstyle(unittest.TestCase):
         subprocess.run(["pylint", "--disable=missing-docstring,invalid-name,bad-continuation"]
                        + pyfiles, check=True)
         subprocess.run(["flake8", "--select=DUO"] + pyfiles, check=True)
+        subprocess.run(["pyupgrade", "--keep-percent-format", "--py38-plus"] + pyfiles, check=True)
 
 
 if __name__ == '__main__':

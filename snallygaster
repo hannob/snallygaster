@@ -893,7 +893,11 @@ for i, h in enumerate(hosts):
     if h.startswith("http://") or h.startswith("https://"):
         print("ERROR: Please run snallygaster with a hostname, not a URL.")
         sys.exit(1)
-    hosts[i] = h.encode("idna").decode("ascii")
+    try:
+        hosts[i] = h.encode("idna").decode("ascii")
+    except UnicodeError:
+        print("ERROR: Invalid hostname")
+        sys.exit(1)
     if h != hosts[i]:
         pdebug("Converted %s to %s" % (h, hosts[i]))
 

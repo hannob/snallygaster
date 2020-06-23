@@ -11,7 +11,7 @@ f.close()
 
 setuptools.setup(
     name=package_name,
-    version="0.0.6",
+    version="0.0.7",
     description="Tool to scan for secret files on HTTP servers",
     long_description=readme,
     long_description_content_type='text/markdown',

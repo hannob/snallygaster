@@ -90,7 +90,7 @@ def escape(msg):
     return repr(msg)[1:-1]
 
 
-def fetcher(fullurl, binary=False, getredir=False):
+def fetcher(fullurl, binary=False, getredir=False, geterrpage=False):
     data = ""
     redir = ""
     try:
@@ -99,7 +99,7 @@ def fetcher(fullurl, binary=False, getredir=False):
             headers = {k.lower(): v for k, v in r.headers.items()}
             if 'location' in headers:
                 redir = headers['location']
-        elif r.status != 200:
+        elif (r.status != 200 and not geterrpage):
             data = ""
         elif binary:
             data = r.data
@@ -697,6 +697,15 @@ def test_wpsubdir(url):
     if (redir.endswith("wp-admin/setup-config.php")
        or 'href="wp-admin/css/install.css"' in r):
         pout("wpsubdir", url + "/wordpress/")
+
+
+@DEFAULT
+def test_telescope(url):
+    r = fetcher(url + "/telescope", geterrpage=True)
+    if '<strong>Laravel</strong> Telescope' in r:
+        pout("telescope", url + "/telescope")
+    elif 'The Telescope assets are not published' in r:
+        pout("telescope_inactive", url + "/telescope")
 
 
 @DEFAULT

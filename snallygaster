@@ -709,6 +709,13 @@ def test_telescope(url):
 
 
 @DEFAULT
+def test_vb_test(url):
+    r = fetcher(url + "/vb_test.php")
+    if '<title>vBulletin Test Script' in r:
+        pout("vb_test", url + "/vb_test.php")
+
+
+@DEFAULT
 @HOSTNAME
 def test_axfr(qhost):
     try:

@@ -324,6 +324,13 @@ Search for publicly accessible instances of the Laravel Telescope software. This
 detailled HTTP requests including Cookies and thus should never be accessible in production.
 
 
+vb_test
+-------
+
+vb_test.php is a script provided by the proprietary Vbulletin software that allows webmasters
+to check server requirements. It should not be left on live hosts.
+
+
 axfr
 ----
 

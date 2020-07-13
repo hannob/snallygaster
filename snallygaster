@@ -828,7 +828,7 @@ def test_composer(url):
         if '"require":' or '"packages":' in r:
             pout("composer", furl)
 
-            
+
 def test_phpinfo(url):
     for fn in ["phpinfo.php", "info.php", "i.php", "test.php"]:
         r = fetcher(url + "/" + fn)

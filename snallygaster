@@ -9,7 +9,6 @@
 
 import argparse
 import sys
-import ssl
 import random
 import string
 import re
@@ -43,7 +42,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module='bs4')
 # This disables warnings about the lack of certificate verification.
 # Usually this is a bad idea, but for this tool we want to find HTTPS leaks
 # even if they are shipped with invalid certificates.
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)  # noqa: DUO131
 
 
 def DEFAULT(f):
@@ -84,31 +83,40 @@ def pout(cause, url, misc="", noisymsg=False):
 
 
 def randstring():
-    return "".join(random.choice(string.ascii_lowercase) for i in range(8))
+    return "".join(random.SystemRandom().choice(string.ascii_lowercase) for i in range(8))
 
 
 def escape(msg):
     return repr(msg)[1:-1]
 
 
-def fetcher(fullurl, binary=False):
+def fetcher(fullurl, binary=False, getredir=False):
+    data = ""
+    redir = ""
     try:
-        r = poolmanager.request('GET', fullurl, retries=False,
-                                redirect=False)
-        if r.status == 200:
-            if binary:
-                return r.data
-            return r.data.decode('ascii', errors='ignore')
-        return ""
+        r = pool.request('GET', fullurl, retries=False, redirect=False)
+        if getredir:
+            headers = {k.lower(): v for k, v in r.headers.items()}
+            if 'location' in headers:
+                redir = headers['location']
+        elif r.status != 200:
+            data = ""
+        elif binary:
+            data = r.data
+        else:
+            data = r.data.decode('ascii', errors='ignore')
     except (urllib3.exceptions.HTTPError, UnicodeError,
-            ConnectionRefusedError, ssl.SSLError):
-        return ""
+            ConnectionRefusedError):
+        data = ""
+    if getredir:
+        return data, redir
+    return data
 
 
 def fetchpartial(fullurl, size, returnsize=False, binary=False):
     try:
-        r = poolmanager.request('GET', fullurl, retries=False,
-                                redirect=False, preload_content=False)
+        r = pool.request('GET', fullurl, retries=False, redirect=False,
+                         preload_content=False)
         if r.status == 200:
             ret = r.read(size)
             if binary:
@@ -127,7 +135,7 @@ def fetchpartial(fullurl, size, returnsize=False, binary=False):
             return rv
         r.release_conn()
     except (urllib3.exceptions.HTTPError, UnicodeError,
-            ConnectionRefusedError, ssl.SSLError):
+            ConnectionRefusedError):
         pass
     if returnsize:
         return ("", 0)
@@ -141,10 +149,9 @@ def check404(url):
 
     pdebug("Checking 404 page state of %s" % rndurl)
     try:
-        r = poolmanager.request('GET', rndurl, retries=False,
-                                redirect=False)
+        r = pool.request('GET', rndurl, retries=False, redirect=False)
     except (urllib3.exceptions.HTTPError, UnicodeError,
-            ConnectionRefusedError, ssl.SSLError):
+            ConnectionRefusedError):
         return False
     what404 = {}
     what404['state'] = (r.status != 200)
@@ -161,6 +168,8 @@ def check404(url):
         what404['sql'] = True
     else:
         what404['sql'] = False
+    if 'you have <code>DEBUG = True</code>' in what404['content']:
+        pout("django_debug", rndurl)
 
     global_what404[url] = what404
     return what404
@@ -171,8 +180,7 @@ def getmainpage(url):
         return mainpage_cache[url]['content']
 
     try:
-        r = poolmanager.request('GET', url, retries=False,
-                                redirect=True)
+        r = pool.request('GET', url, retries=False, redirect=True)
         if r.status == 200:
             data = r.data.decode('ascii', errors='ignore')
         else:
@@ -183,7 +191,7 @@ def getmainpage(url):
         else:
             redir = ""
     except (urllib3.exceptions.HTTPError, UnicodeError,
-            ConnectionRefusedError, ssl.SSLError):
+            ConnectionRefusedError):
         mainpage_cache[url] = {}
         mainpage_cache[url]['httpcode'] = 0
         mainpage_cache[url]['location'] = ""
@@ -204,7 +212,7 @@ def dnscache(qhost):
         socket.inet_aton(qhost)
         dns_cache[qhost] = qhost
         return qhost
-    except socket.error:
+    except OSError:
         pass
     try:
         dnsanswer = dns.resolver.query(qhost, 'A')
@@ -261,14 +269,6 @@ def test_svn_dir(url):
 
 
 @DEFAULT
-def test_cvs_dir(url):
-    r = fetcher(url + '/CVS/Root')
-    # this is a bit hacky, but should be good enough to avoid FPs
-    if len(r.split("\n")) == 2 and ':' in r and '<' not in r:
-        pout("cvs_dir", url + "/CVS/Root")
-
-
-@DEFAULT
 def test_apache_server_status(url):
     r = fetcher(url + '/server-status')
     if 'Apache Status' in r:
@@ -285,7 +285,7 @@ def test_coredump(url):
 @DEFAULT
 def test_sftp_config(url):
     r = fetcher(url + '/sftp-config.json')
-    if '"type":' in r and 'ftp' in r:
+    if '"type":' in r and 'ftp' in r and '"save_before_upload"' in r:
         pout("sftp_config", url + "/sftp-config.json")
 
 
@@ -324,7 +324,7 @@ def test_ds_store(url):
 def test_php_cs_cache(url):
     r = fetcher(url + '/.php_cs.cache')
     if r[0:8] == '{"php":"':
-        pout("php_cs_cache", url + "/.DS_Store")
+        pout("php_cs_cache", url + "/.php_cs.cache")
 
 
 @DEFAULT
@@ -337,11 +337,31 @@ def test_backupfiles(url):
         # code, check doesn't make sense.
         return
     for f in STANDARD_PHP_FILES:
-        for ps in ['_FILE_.bak', '_FILE_~', '._FILE_.swp', '%23_FILE_%23']:
+        for ps in ['_FILE_.bak', '_FILE_~', '._FILE_.swp', '%23_FILE_%23', '_FILE_.save']:
             furl = url + "/" + ps.replace('_FILE_', f)
             r = fetcher(furl)
             if any(m in r for m in ['<?php', '<?=']):
-                pout("backup_files", furl)
+                pout("backupfiles", furl)
+
+
+@DEFAULT
+def test_backup_archive(url):
+    apexhost = re.sub('^www.', '', re.sub('(.*//|/.*)', "", url))
+    wwwhost = "www." + apexhost
+
+    for fn in ['backup', 'www', 'wwwdata', 'db', 'htdocs', apexhost, wwwhost]:
+        r = fetchpartial(url + "/" + fn + ".zip", 2, binary=True)
+        if r == b'PK':
+            pout("backup_archive", url + "/" + fn + ".zip")
+        r = fetchpartial(url + "/" + fn + ".tar.gz", 3, binary=True)
+        if r == b'\x1f\x8b\x08':
+            pout("backup_archive", url + "/" + fn + ".tar.gz")
+        r = fetchpartial(url + "/" + fn + ".tar.bz2", 3, binary=True)
+        if r in [b'BZh', b'BZ0']:
+            pout("backup_archive", url + "/" + fn + ".tar.bz2")
+        r = fetchpartial(url + "/" + fn + ".tar.xz", 6, binary=True)
+        if r == b'\xFD7zXZ\x00':
+            pout("backup_archive", url + "/" + fn + ".tar.xz")
 
 
 @DEFAULT
@@ -370,7 +390,7 @@ def test_sql_dump(url):
         if r == b'\x1f\x8b\x08':
             pout("sql_dump_gz", url + "/" + f + ".gz")
         r = fetchpartial(url + "/" + f + ".bz2", 3, binary=True)
-        if r == b'BZh' or r == b'BZ0':
+        if r in [b'BZh', b'BZ0']:
             pout("sql_dump_bz", url + "/" + f + ".bz2")
         r = fetchpartial(url + "/" + f + ".xz", 6, binary=True)
         if r == b'\xFD7zXZ\x00':
@@ -388,7 +408,8 @@ def test_bitcoin_wallet(url):
 def test_drupal_backup_migrate(url):
     r = fetcher(url + '/sites/default/private/files/backup_migrate/scheduled/test.txt')
     if 'this file should not be publicly accessible' in r:
-        pout("drupal_backup_migrate", url + "/sites/default/private/files/backup_migrate/scheduled/test.txt")
+        pout("drupal_backup_migrate",
+             url + "/sites/default/private/files/backup_migrate/scheduled/test.txt")
 
 
 @DEFAULT
@@ -410,18 +431,16 @@ def test_xaa(url):
         return
     # Check for signs of common compression formats (gz, bzip2, xz, zstd, zip).
     if (r[0:3] == b'\x1f\x8b\x08'
-       or r[0:3] == b'BZh' or r[0:3] == b'BZ0'
-       or r[0:6] == b'\xFD7zXZ\x00'
-       or r[0:4] == b'\x28\xB5\x2F\xFD'
-       or r[0:4] == b'PK\x03\x04'):
+            or r[0:3] in [b'BZh', b'BZ0']
+            or r[0:6] == b'\xFD7zXZ\x00'
+            or r[0:4] in [b'\x28\xB5\x2F\xFD', b'PK\x03\x04']):
         pout("xaa", url + "/xaa")
 
 
 @DEFAULT
 def test_optionsbleed(url):
     try:
-        r = poolmanager.request('OPTIONS', url, retries=False,
-                                redirect=False)
+        r = pool.request('OPTIONS', url, retries=False, redirect=False)
     except (ConnectionRefusedError, urllib3.exceptions.HTTPError,
             UnicodeError):
         return
@@ -431,14 +450,22 @@ def test_optionsbleed(url):
         return
     if allow == "":
         pout("options_empty", url, noisymsg=True)
-    elif re.match("^[a-zA-Z]+(-[a-zA-Z]+)? *(, *[a-zA-Z]+(-[a-zA-Z]+)? *)*$", allow):
-        z = [x.strip() for x in allow.split(',')]
+        return
+
+    # catch some obvious cases first
+    if (",," in allow) or (allow[0] == ",") or (allow[-1] == ","):
+        pout("optionsbleed", url, escape(allow))
+        return
+
+    z = [x.strip() for x in allow.split(',')]
+    if re.match("^[a-zA-Z-]*$", "".join(z)):
         if len(z) > len(set(z)):
             pout("options_duplicates", url, escape(allow), noisymsg=True)
-    elif re.match("^[a-zA-Z]+(-[a-zA-Z]+)? *( +[a-zA-Z]+(-[a-zA-Z]+)? *)+$", allow):
+        return
+    if re.match("^[a-zA-Z- ]*$", allow):
         pout("options_spaces", url, escape(allow))
-    else:
-        pout("optionsbleed", url, escape(allow))
+        return
+    pout("optionsbleed", url, escape(allow))
 
 
 @DEFAULT
@@ -462,11 +489,7 @@ def test_privatekey(url):
 def test_sshkey(url):
     for fn in ["id_rsa", "id_dsa", ".ssh/id_rsa", ".ssh/id_dsa"]:
         r = fetcher(url + "/" + fn)
-        if 'BEGIN PRIVATE KEY' in r:
-            pout("sshkey", "%s/%s" % (url, fn))
-        if 'BEGIN RSA PRIVATE KEY' in r:
-            pout("sshkey", "%s/%s" % (url, fn))
-        if 'BEGIN DSA PRIVATE KEY' in r:
+        if 'BEGIN' in r and 'PRIVATE KEY' in r:
             pout("sshkey", "%s/%s" % (url, fn))
 
 
@@ -490,7 +513,8 @@ def test_invalidsrc(url):
     srcs = []
     for tag in p.findAll(attrs={"src": True}):
         srcs.append(tag['src'])
-    srcs = set(srcs)
+    srcs = list(set(srcs))
+    srcs.sort()
 
     checkeddomains = []
     for src in srcs:
@@ -518,8 +542,7 @@ def test_invalidsrc(url):
             continue
 
         try:
-            r = poolmanager.request('GET', realurl, retries=False,
-                                    redirect=False)
+            r = pool.request('GET', realurl, retries=False, redirect=False)
             if r.status >= 400:
                 pout("invalidsrc_http", url, escape(src))
         except UnicodeEncodeError:
@@ -533,21 +556,21 @@ def test_invalidsrc(url):
 def test_ilias_defaultpw(url):
     getmainpage(url)
     if (url + "/ilias.php" in mainpage_cache[url]['location']
-       or (url + "/login.php" in mainpage_cache[url]['location']
-       and 'powered by ILIAS' in fetcher(mainpage_cache[url]['location']))):
+            or (url + "/login.php" in mainpage_cache[url]['location']
+                and 'powered by ILIAS' in fetcher(mainpage_cache[url]['location']))):
         # we're confident we found an ILIAS installation
         pdebug("Ilias found")
         try:
-            login = poolmanager.request("POST", url + "/ilias.php?cmd=post&baseClass=ilStartUpGUI",
-                                        fields={'username': 'root',
-                                                'password': 'homer',
-                                                'cmd[doStandardAuthentication]': 'Login'},
-                                        headers={'Cookie': 'iltest=;PHPSESSID=' + randstring()})
+            login = pool.request("POST", url + "/ilias.php?cmd=post&baseClass=ilStartUpGUI",
+                                 fields={'username': 'root',
+                                         'password': 'homer',
+                                         'cmd[doStandardAuthentication]': 'Login'},
+                                 headers={'Cookie': 'iltest=;PHPSESSID=' + randstring()})
             data = login.data.decode('ascii', errors='ignore')
             if (('class="ilFailureMessage"' not in data)
-               and ('name="il_message_focus"' not in data)
-               and (('class="ilBlockContent"' in data)
-               or ('class="ilAdminRow"' in data))):
+                    and ('name="il_message_focus"' not in data)
+                    and (('class="ilBlockContent"' in data)
+                         or ('class="ilAdminRow"' in data))):
                 pout("ilias_defaultpw", url, "root/homer")
         except (ConnectionRefusedError, ConnectionResetError,
                 urllib3.exceptions.HTTPError):
@@ -558,7 +581,7 @@ def test_ilias_defaultpw(url):
 def test_cgiecho(url):
     for pre in [url + "/cgi-bin/cgiecho", url + "/cgi-sys/cgiecho"]:
         try:
-            r = poolmanager.request("GET", pre + "/" + randstring())
+            r = pool.request("GET", pre + "/" + randstring())
             if r.status == 500 and '<P><EM>cgiemail' in r.data.decode('ascii', errors='ignore'):
                 pout("cgiecho", pre)
         except (ConnectionRefusedError, ConnectionResetError,
@@ -569,14 +592,111 @@ def test_cgiecho(url):
 @DEFAULT
 def test_phpunit_eval(url):
     try:
-        r = poolmanager.request("POST", url + "/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php",
-                                body='<?php echo(substr_replace("hello", "12", 2, 2));')
+        r = pool.request("POST", url + "/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php",
+                         body='<?php echo(substr_replace("hello", "12", 2, 2));')
         data = r.data.decode('ascii', errors='ignore')
         if data == "he12o":
             pout("phpunit_eval", url + "/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php")
     except (ConnectionRefusedError, ConnectionResetError,
             urllib3.exceptions.HTTPError):
         pass
+
+
+@DEFAULT
+def test_acmereflect(url):
+    reflect = randstring()
+    try:
+        r = pool.request('GET', url + "/.well-known/acme-challenge/<html>" + reflect,
+                         retries=False, redirect=False)
+        if not r.data.decode('ascii', errors='ignore').startswith("<html>" + reflect):
+            return
+        headers = {k.lower(): v for k, v in r.headers.items()}
+        if ('content-type' in headers) and headers['content-type'].startswith("text/plain"):
+            return
+        pout("acmereflect", url + "/.well-known/acme-challenge/reflect")
+
+    except (urllib3.exceptions.HTTPError, UnicodeError,
+            ConnectionRefusedError):
+        return
+
+
+@DEFAULT
+def test_drupaldb(url):
+    r = fetchpartial(url + "/sites/default/files/.ht.sqlite", 20, binary=True)
+    if r and r[0:13] == b'SQLite format':
+        pout("drupaldb", url + "/sites/default/files/.ht.sqlite")
+
+
+@DEFAULT
+def test_phpwarnings(url):
+    try:
+        r = pool.request("GET", url, headers={"Cookie": "PHPSESSID=in_vålíd"})
+        if ('The session id is too long or contains illegal characters'
+                in r.data.decode('ascii', errors='ignore')):
+            pout("phpwarnings", url)
+    except (urllib3.exceptions.HTTPError, UnicodeError,
+            ConnectionRefusedError):
+        pass
+
+
+@DEFAULT
+def test_adminer(url):
+    r = fetcher(url + "/adminer.php")
+    if "adminer.org" in r:
+        pout("adminer", url + "/adminer.php")
+
+
+@DEFAULT
+def test_elmah(url):
+    r = fetcher(url + "/elmah.axd")
+    if "Error Log for" in r:
+        pout("elmah", url + "/elmah.axd")
+    r = fetcher(url + "/scripts/elmah.axd")
+    if "Error Log for" in r:
+        pout("elmah", url + "/scripts/elmah.axd")
+
+
+@DEFAULT
+def test_citrix_rce(url):
+    try:
+        r = pool.request('GET', url + "/vpn/../vpns/portal/tips.html",
+                         retries=False, redirect=False,
+                         headers={"NSC_USER": "x", "NSC_NONCE": "x"})
+        if '<div id="nexttip">' in r.data.decode('ascii', errors='ignore'):
+            pout("citrix_rce", url + "/vpn/../vpns/portal/tips.html")
+    except (urllib3.exceptions.HTTPError, UnicodeError,
+            ConnectionRefusedError):
+        pass
+
+
+@DEFAULT
+def test_installer(url):
+    r = getmainpage(url)
+    if (mainpage_cache[url]['location'].endswith("wp-admin/setup-config.php")
+       or 'href="wp-admin/css/install.css"' in r):
+        pout("installer_wordpress", url)
+    elif mainpage_cache[url]['location'].endswith("installation/index.php"):
+        pout("installer_joomla", url)
+    elif mainpage_cache[url]['location'].endswith("typo3/install.php"):
+        pout("installer_typo3", url)
+    elif mainpage_cache[url]['location'].endswith("install.php"):
+        pout("installer_drupal", url)
+    elif mainpage_cache[url]['location'].endswith("serendipity_admin.php"):
+        pout("installer_s9y", url)
+    elif 'LocalSettings.php not found' in r:
+        pout("installer_mediawiki", url)
+    elif '8 easy steps and will take around 5 minutes' in r:
+        pout("installer_matomo", url)
+    elif 'Create an <strong>admin account</strong>' in r:
+        pout("installer_nextcloud", url)
+
+
+@DEFAULT
+def test_wpsubdir(url):
+    r, redir = fetcher(url + "/wordpress/", getredir=True)
+    if (redir.endswith("wp-admin/setup-config.php")
+       or 'href="wp-admin/css/install.css"' in r):
+        pout("wpsubdir", url + "/wordpress/")
 
 
 @DEFAULT
@@ -596,6 +716,40 @@ def test_axfr(qhost):
                 EOFError, socket.gaierror, ConnectionRefusedError,
                 TimeoutError, OSError):
             pass
+
+
+@DEFAULT
+@HOSTNAME
+def test_openmonit(qhost):
+    url = 'http://%s:2812/' % qhost
+    headers = urllib3.util.make_headers(basic_auth='admin:monit')
+    try:
+        r = pool.request('GET', url, headers=headers)
+        if '<title>Monit:' in r.data.decode('ascii', errors='ignore'):
+            pout("openmonit", url)
+    except (urllib3.exceptions.HTTPError, UnicodeError,
+            ConnectionRefusedError):
+        pass
+
+
+@DEFAULT
+@HOSTNAME
+def test_openelasticsearch(qhost):
+    headers = urllib3.util.make_headers(basic_auth='admin:admin')
+    try:
+        r = pool.request('GET', 'http://%s:9200' % qhost, headers=headers)
+        if '"cluster_name" :' in r.data.decode('ascii', errors='ignore'):
+            pout("openelasticsearch", 'http://%s:9200' % qhost)
+    except (urllib3.exceptions.HTTPError, UnicodeError,
+            ConnectionRefusedError):
+        pass
+    try:
+        r = pool.request('GET', 'https://%s:9200' % qhost, headers=headers)
+        if '"cluster_name" :' in r.data.decode('ascii', errors='ignore'):
+            pout("openelasticsearch", 'https://%s:9200' % qhost)
+    except (urllib3.exceptions.HTTPError, UnicodeError,
+            ConnectionRefusedError):
+        pass
 
 
 @INFO
@@ -635,6 +789,30 @@ def test_wordpress(url):
 
 
 @INFO
+def test_mailman(url):
+    murl = '%s/mailman/listinfo' % url
+    r = fetcher(murl)
+    if 'Delivered by Mailman' in r:
+        ver = re.findall('version ([0-9.]+)', r)
+        if len(ver) > 0:
+            ver = ver[0]
+        else:
+            ver = "unknown"
+        if 'There currently are no publicly-advertised' in r:
+            pout("mailman_unused", "%s %s" % (murl, ver))
+        else:
+            pout("mailman", "%s %s" % (murl, ver))
+
+
+@INFO
+def test_composer(url):
+    for c in ['composer.json', 'composer.lock']:
+        furl = url + '/' + c
+        r = fetcher(furl)
+        if '"require":' or '"packages":' in r:
+            pout("composer", furl)
+
+            
 def test_phpinfo(url):
     for fn in ["phpinfo.php", "info.php", "i.php", "test.php"]:
         r = fetcher(url + "/" + fn)
@@ -660,7 +838,7 @@ sys.excepthook = new_excepthook
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("hosts", nargs='*', help="hostname to scan")
+parser.add_argument("hosts", nargs='+', help="hostname to scan")
 parser.add_argument("-t", "--tests", nargs=1,
                     help="Comma-separated tests to run.")
 parser.add_argument("--useragent", nargs=1,
@@ -687,8 +865,11 @@ args = parser.parse_args()
 user_agent = {'user-agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0'}
 if args.useragent:
     user_agent = {'user-agent': args.useragent[0]}
-poolmanager = urllib3.PoolManager(10, headers=user_agent)
+pool = urllib3.PoolManager(10, headers=user_agent, cert_reqs='CERT_NONE',  # noqa: DUO132
+                           retries=False, timeout=2)
 
+# This is necessary for directory traversal attacks like citrix_cve
+urllib3.util.url.NORMALIZABLE_SCHEMES = ()
 
 if args.tests is None:
     tests = [g for f, g in locals().items() if hasattr(g, '_is_default_test')]
@@ -705,7 +886,7 @@ if args.info:
     tests += [g for f, g in locals().items() if hasattr(g, '_is_info_test')]
 
 path = args.path.rstrip("/")
-if len(path) > 0 and path[0] != "/":
+if path != "" and path[0] != "/":
     path = "/" + path
 if path != "":
     pdebug("Path: %s" % path)
@@ -716,6 +897,9 @@ if not args.nowww:
         hosts.append("www." + h)
 
 for i, h in enumerate(hosts):
+    if h.startswith("http://") or h.startswith("https://"):
+        print("ERROR: Please run snallygaster with a hostname, not a URL.")
+        sys.exit(1)
     hosts[i] = h.encode("idna").decode("ascii")
     if h != hosts[i]:
         pdebug("Converted %s to %s" % (h, hosts[i]))
@@ -735,5 +919,9 @@ for host in hosts:
                 test("http://" + host + path)
             if not args.nohttps:
                 test("https://" + host + path)
+
+# clear all sockets
+pool.clear()
+
 if args.json:
     print(json.dumps(json_out))

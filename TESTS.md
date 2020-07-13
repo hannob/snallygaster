@@ -388,3 +388,9 @@ composer
 Check for composer.json/composer.lock files. Can be checked with the
 [Symfony security check](https://symfony.com/doc/current/setup.html#security-checker)
 afterwards.
+
+
+phpinfo
+-------
+
+Check for the presence of a phpinfo() script.

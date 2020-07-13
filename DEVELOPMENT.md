@@ -6,7 +6,8 @@ How to make a new release
 * raise version number in *setup.py*.
 * Tag it:
   ```
-  git tag v0.0.x
+  git tag -a v0.0.x
+  [add changelog message]
   git push origin v0.0.x
   ```
 * Build the wheel and source distribution:

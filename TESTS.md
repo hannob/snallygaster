@@ -338,6 +338,13 @@ This tries to inject an url-encoded newline and HTTP header into the URL. This o
 redirections if the host decodes the path and passes it to the location header.
 
 
+wpdebug
+-------
+
+Publicly accessible debug.log file from Wordpress, contains usually PHP error messages, sometimes
+with sensitive data like passwords in stack traces.
+
+
 axfr
 ----
 

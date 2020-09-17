@@ -331,6 +331,13 @@ vb_test.php is a script provided by the proprietary Vbulletin software that allo
 to check server requirements. It should not be left on live hosts.
 
 
+headerinject
+------------
+
+This tries to inject an url-encoded newline and HTTP header into the URL. This often works on
+redirections if the host decodes the path and passes it to the location header.
+
+
 axfr
 ----
 

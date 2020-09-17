@@ -728,6 +728,13 @@ def test_headerinject(url):
 
 
 @DEFAULT
+def test_wpdebug(url):
+    r = fetcher(url + "/wp-content/debug.log")
+    if re.match(r'^\[\d\d-\w\w\w-\d\d\d\d ', r):
+        pout("wpdebug", url + "/wp-content/debug.log")
+
+
+@DEFAULT
 @HOSTNAME
 def test_axfr(qhost):
     try:

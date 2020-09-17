@@ -716,6 +716,18 @@ def test_vb_test(url):
 
 
 @DEFAULT
+def test_headerinject(url):
+    rnd = randstring()
+    try:
+        r = pool.request('GET', url + '/%%0D%%0A%s:1' % rnd, retries=False, redirect=False)
+        if rnd in r.headers:
+            pout("headerinject", url + '/%%0D%%0A%s:1' % rnd)
+    except (urllib3.exceptions.HTTPError, UnicodeError,
+            ConnectionRefusedError):
+        pass
+
+
+@DEFAULT
 @HOSTNAME
 def test_axfr(qhost):
     try:

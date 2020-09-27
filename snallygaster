@@ -215,7 +215,10 @@ def dnscache(qhost):
     except OSError:
         pass
     try:
-        dnsanswer = dns.resolver.query(qhost, 'A')
+        if 'resolve' in dir(dns.resolver):
+            dnsanswer = dns.resolver.resolve(qhost, 'A')
+        else:  # dnspython before 2.0
+            dnsanswer = dns.resolver.query(qhost, 'A')
     except (dns.exception.DNSException, ConnectionResetError):
         dns_cache[qhost] = None
         return None
@@ -738,19 +741,39 @@ def test_wpdebug(url):
 @HOSTNAME
 def test_axfr(qhost):
     try:
-        ns = dns.resolver.query(qhost, 'NS')
+        if 'resolve' in dir(dns.resolver):
+            ns = dns.resolver.resolve(qhost, 'NS')
+        else:  # dnspython before 2.0
+            ns = dns.resolver.query(qhost, 'NS')
     except (dns.exception.DNSException, ConnectionResetError):
         return
     for r in ns.rrset:
         r = str(r)
+        ipv4 = []
+        ipv6 = []
         try:
-            axfr = dns.zone.from_xfr(dns.query.xfr(r, qhost))
-            if axfr:
-                pout("axfr", qhost, r)
-        except (dns.exception.DNSException, ConnectionResetError,
-                EOFError, socket.gaierror, ConnectionRefusedError,
-                TimeoutError, OSError):
+            if 'resolve' in dir(dns.resolver):
+                ipv4 = dns.resolver.resolve(r, 'a').rrset
+                ipv6 = dns.resolver.resolve(r, 'aaaa').rrset
+            else:  # dnspython before 2.0
+                ipv4 = dns.resolver.query(r, 'a').rrset
+                ipv6 = dns.resolver.query(r, 'aaaa').rrset
+        except dns.resolver.NoAnswer:
             pass
+        ips = []
+        for ip in ipv4:
+            ips.append(str(ip))
+        for ip in ipv6:
+            ips.append(str(ip))
+        for ip in ips:
+            try:
+                axfr = dns.zone.from_xfr(dns.query.xfr(ip, qhost))
+                if axfr:
+                    pout("axfr", qhost, r)
+            except (dns.exception.DNSException, ConnectionResetError,
+                    EOFError, socket.gaierror, ConnectionRefusedError,
+                    TimeoutError, OSError):
+                pass
 
 
 @DEFAULT

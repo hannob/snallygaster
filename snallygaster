@@ -746,7 +746,9 @@ def test_axfr(qhost):
             ns = dns.resolver.resolve(qhost, 'NS')
         else:  # dnspython before 2.0
             ns = dns.resolver.query(qhost, 'NS')
-    except (dns.exception.DNSException, ConnectionResetError):
+    except (dns.exception.DNSException, dns.exception.Timeout,
+            ConnectionResetError, ConnectionRefusedError,
+            EOFError, socket.gaierror, TimeoutError, OSError):
         return
     for r in ns.rrset:
         r = str(r)
@@ -771,9 +773,9 @@ def test_axfr(qhost):
                 axfr = dns.zone.from_xfr(dns.query.xfr(ip, qhost))
                 if axfr:
                     pout("axfr", qhost, r)
-            except (dns.exception.DNSException, ConnectionResetError,
-                    EOFError, socket.gaierror, ConnectionRefusedError,
-                    TimeoutError, OSError):
+            except (dns.exception.DNSException, dns.exception.Timeout,
+                    ConnectionResetError, ConnectionRefusedError,
+                    EOFError, socket.gaierror, TimeoutError, OSError):
                 pass
 
 

@@ -739,6 +739,13 @@ def test_wpdebug(url):
 
 
 @DEFAULT
+def test_thumbsdb(url):
+    r = fetcher(url + "/Thumbs.db", binary=True)
+    if r and r[0:8] == b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1':
+        pout("thumbsdb", url + "/Thumbs.db")
+
+
+@DEFAULT
 @HOSTNAME
 def test_axfr(qhost):
     try:

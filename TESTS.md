@@ -345,6 +345,14 @@ Publicly accessible debug.log file from Wordpress, contains usually PHP error me
 with sensitive data like passwords in stack traces.
 
 
+thumbsdb
+--------
+
+Image metadata from old Windows versions, may leak file names and thumbnails.
+
+* [Vinetto thumbnail parser](https://github.com/AtesComp/Vinetto)
+
+
 axfr
 ----
 

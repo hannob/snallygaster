@@ -3,8 +3,7 @@ python:
   - "3.7"
   - "3.8"
   - "3.9-dev"
-# Fails due to https://github.com/pypa/wheel/issues/354
-#  - "nightly"
+  - "nightly"
 env:
   global:
     - RUN_ONLINETESTS=1

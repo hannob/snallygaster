@@ -10,7 +10,8 @@ class TestCodingstyle(unittest.TestCase):
         subprocess.run(["pycodestyle", "--ignore=W503", "--max-line-length=100"]
                        + pyfiles, check=True)
         subprocess.run(["pyflakes"] + pyfiles, check=True)
-        subprocess.run(["pylint", "--disable=missing-docstring,invalid-name,bad-continuation"]
+        subprocess.run(["pylint", "--disable=missing-docstring,invalid-name,"
+                                  "bad-continuation,consider-using-with"]
                        + pyfiles, check=True)
         subprocess.run(["flake8", "--select=DUO"] + pyfiles, check=True)
         subprocess.run(["pyupgrade", "--keep-percent-format", "--py38-plus"] + pyfiles, check=True)

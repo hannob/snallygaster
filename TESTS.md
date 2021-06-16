@@ -353,6 +353,19 @@ Image metadata from old Windows versions, may leak file names and thumbnails.
 * [Vinetto thumbnail parser](https://github.com/AtesComp/Vinetto)
 
 
+duplicator
+----------
+
+Find leftover installer.php / installer-backup.php files from the Wordpress Duplicator
+plugin.
+Note: While this is claimed as "fixed" by the plugin authors in later versions as the
+plugin tries to delete these files after the next login, a vulnerable state can still
+happen if the files are not successfully deleted after a migration.
+
+* [Synacktiv: Remote code execution vulnerability in WordPress Duplicator](https://www.synacktiv.com/ressources/advisories/WordPress_Duplicator-1.2.40-RCE.pdf)
+* [Anonleaks: KennotFM / Details zu Hack und Defacement](https://anonleaks.net/2021/optinfoil/kennotfm-details-zu-hack-und-defacement/)
+
+
 axfr
 ----
 

@@ -746,6 +746,14 @@ def test_thumbsdb(url):
 
 
 @DEFAULT
+def test_duplicator(url):
+    for fn in ['installer.php', 'installer-backup.php']:
+        r = fetcher("%s/%s" % (url, fn))
+        if '/dup-installer/main.installer.php' in r:
+            pout("duplicator", "%s/%s" % (url, fn))
+
+
+@DEFAULT
 @HOSTNAME
 def test_axfr(qhost):
     try:

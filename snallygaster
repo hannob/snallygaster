@@ -751,6 +751,10 @@ def test_duplicator(url):
         r = fetcher("%s/%s" % (url, fn))
         if '/dup-installer/main.installer.php' in r:
             pout("duplicator", "%s/%s" % (url, fn))
+    for fn in ['backups-dup-pro', 'backups-dup-lite']:
+        r = fetcher("%s/wp-content/%s/" % (url, fn))
+        if '>Index of /' in r:
+            pout("duplicator_dirlisting", "%s/wp-content/%s/" % (url, fn))
 
 
 @DEFAULT

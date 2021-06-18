@@ -366,6 +366,9 @@ def test_backup_archive(url):
         r = fetchpartial(url + "/" + fn + ".tar.xz", 6, binary=True)
         if r == b'\xFD7zXZ\x00':
             pout("backup_archive", url + "/" + fn + ".tar.xz")
+        r = fetchpartial(url + "/" + fn + ".7z", 2, binary=True)
+        if r == b'7z':
+            pout("backup_archive", url + "/" + fn + ".7z")
 
 
 @DEFAULT

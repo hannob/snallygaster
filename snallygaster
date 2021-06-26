@@ -281,9 +281,9 @@ def test_apache_server_status(url):
 @DEFAULT
 def test_apache_server_info(url):
     r = fetcher(url + '/server-info')
-    if 'Apache Status' in r:
+    if 'Server Information' in r:
         pout("apache_server_info", url + "/server-info")
-        
+
 
 @DEFAULT
 def test_apache_perl_status(url):

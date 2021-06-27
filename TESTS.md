@@ -65,6 +65,15 @@ Apache server-status pages. These can contain visitor URLs and IP addresses of v
 * [Sucuri: Popular sites with Apache server-status enabled](https://blog.sucuri.net/2012/10/popular-sites-with-apache-server-status-enabled.html)
 
 
+apache_server_info
+--------------------
+
+Apache server-info pages. These can contain visitor URLs and IP addresses of visitors.
+
+* [apache.org: Apache Module mod_info](https://httpd.apache.org/docs/2.4/mod/mod_info.html)
+* [Heise.de: Webserver-Sicherheitslücke: Heikle Konfigurations- und Statusdaten publiziert](https://www.heise.de/hintergrund/Webserver-Sicherheitsluecke-Heikle-Konfigurations-und-Statusdaten-publiziert-4971830.html?seite=3)
+
+
 coredump
 --------
 

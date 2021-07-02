@@ -279,6 +279,13 @@ def test_apache_server_status(url):
 
 
 @DEFAULT
+def test_apache_server_info(url):
+    r = fetcher(url + '/server-info')
+    if 'Apache Server Information' in r:
+        pout("apache_server_info", url + "/server-info")
+
+
+@DEFAULT
 def test_coredump(url):
     r = fetchpartial(url + "/core", 20, binary=True)
     if r and r[0:4] == b'\x7fELF':

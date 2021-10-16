@@ -1,3 +1,8 @@
+name: codeql tests
+on:
+- pull_request
+- push
+
 jobs:
   CodeQL-Build:
     runs-on: ubuntu-latest

@@ -331,10 +331,13 @@ def test_ds_store(url):
 
 
 @DEFAULT
-def test_php_cs_cache(url):
+def test_php_cs_fixer(url):
     r = fetcher(url + '/.php_cs.cache')
     if r[0:8] == '{"php":"':
         pout("php_cs_cache", url + "/.php_cs.cache")
+    r = fetcher(url + '/.php-cs-fixer.cache')
+    if r[0:8] == '{"php":"':
+        pout("php_cs_cache", url + "/.php-cs-fixer.cache")
 
 
 @DEFAULT

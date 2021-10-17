@@ -118,11 +118,11 @@ The Apple OS X file manager Finder creates these files. They may leak directory 
 * [Internetwache: Scanning the Alexa Top 1M for .DS_Store files](https://en.internetwache.org/scanning-the-alexa-top-1m-for-ds-store-files-12-03-2018/)
 * [ds_stope_exp (recursively download .DS_Store files)](https://github.com/lijiejie/ds_store_exp)
 
-php_cs_cache
+php_cs_fixer
 ------------
 
-Cache file from php-cs-checker, a codingstyle checker for PHP. This effectively leaks a directory
-listing of PHP files.
+Cache file from PHP-CS-Fixer, a codingstyle checker for PHP. This effectively leaks a directory
+listing of PHP files. Supports both v2 and v3 formats.
 
 
 backupfiles

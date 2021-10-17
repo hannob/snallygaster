@@ -1,4 +1,4 @@
-name: snallygaster tests
+name: run tests
 on:
 - pull_request
 - push

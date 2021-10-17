@@ -1,4 +1,4 @@
-name: snallygaster tests
+name: run tests
 on:
 - pull_request
 - push
@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8,3.9,3.10-dev]
+        python-version: [3.8,3.x,3.11-dev]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -21,5 +21,7 @@ jobs:
           pip install -r requirements.txt
           pip install pycodestyle pyflakes pylint dlint pyupgrade
       - name: Run tests
+        env:
+          RUN_ONLINETESTS: 1
         run: |
           python3 -m unittest

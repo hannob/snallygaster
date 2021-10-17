@@ -21,5 +21,7 @@ jobs:
           pip install -r requirements.txt
           pip install pycodestyle pyflakes pylint dlint pyupgrade
       - name: Run tests
+        env:
+          RUN_ONLINETESTS: 1
         run: |
           python3 -m unittest

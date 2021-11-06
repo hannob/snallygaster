@@ -63,6 +63,11 @@ that I would have had name collisions with other software. Checking the list of 
 Wikipedia I learned about the Snallygaster. The name sounded funny, the idea that there are
 dragon legends in the US interesting and I found no other piece of software with that name.
 
+Q: How to use it?
+
+A: Try ./snallygaster --help or ./snallygaster -d github.com to see how it works.
+
+
 credit and thanks
 =================
 

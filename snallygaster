@@ -170,6 +170,9 @@ def check404(url):
         what404['sql'] = False
     if 'you have <code>DEBUG = True</code>' in what404['content']:
         pout("django_debug", rndurl)
+    if '<title>No route found' in what404['content'] and \
+       'Symfony Exception' in what404['content']:
+        pout("symfony_debug", rndurl)
 
     global_what404[url] = what404
     return what404

@@ -771,6 +771,16 @@ def test_duplicator(url):
 
 
 @DEFAULT
+def test_desktopini(url):
+    r = fetcher(url + "/desktop.ini")
+    if '[\x00.\x00S\x00h\x00e\x00l\x00l\x00C\x00l\x00a\x00s\x00s' in r:
+        pout("desktopini", url + "/desktop.ini")
+    r = fetcher(url + "/Desktop.ini")
+    if '[\x00.\x00S\x00h\x00e\x00l\x00l\x00C\x00l\x00a\x00s\x00s' in r:
+        pout("desktopini", url + "/Desktop.ini")
+
+
+@DEFAULT
 @HOSTNAME
 def test_axfr(qhost):
     try:

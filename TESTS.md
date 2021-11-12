@@ -375,6 +375,14 @@ happen if the files are not successfully deleted after a migration.
 * [Anonleaks: KennotFM / Details zu Hack und Defacement](https://anonleaks.net/2021/optinfoil/kennotfm-details-zu-hack-und-defacement/)
 
 
+desktopini
+----------
+
+Finds Windows Explorer desktop.ini metadata files. These sometimes leak information
+about possibly installed software on a developer machine or file names.
+Impact is usually low, but it is very common.
+
+
 axfr
 ----
 

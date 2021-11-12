@@ -15,6 +15,7 @@ TESTDATA = {"backup_archive": "[backup_archive] https://localhost:4443/backup.zi
             "backupfiles": "[backupfiles] https://localhost:4443/index.php~",
             "ds_store": "[ds_store] https://localhost:4443/.DS_Store",
             "privatekey": "[privatekey_pkcs8] https://localhost:4443/server.key",
+            "desktopini": "[desktopini] https://localhost:4443/desktop.ini",
             }
 
 

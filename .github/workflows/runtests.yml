@@ -8,7 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8,3.x,3.11-dev]
+        # disable 3.11-dev for now, pylint fails due to
+        # https://github.com/GrahamDumpleton/wrapt/issues/196
+        python-version: [3.8,3.x]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}

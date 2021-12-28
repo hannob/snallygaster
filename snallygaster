@@ -878,7 +878,7 @@ def test_wordpress(url):
     try:
         p = bs4.BeautifulSoup(r, 'html.parser')
         g = p.findAll("meta", {"name": "generator"})
-        if g != [] and g[0]['content'][:9] == "WordPress":
+        if g and g[0]['content'][:9] == "WordPress":
             version = g[0]['content'][10:]
             if not set(version).issubset("0123456789."):
                 return

@@ -942,10 +942,8 @@ sys.excepthook = new_excepthook
 
 parser = argparse.ArgumentParser()
 parser.add_argument("hosts", nargs='+', help="hostname to scan")
-parser.add_argument("-t", "--tests", nargs=1,
-                    help="Comma-separated tests to run.")
-parser.add_argument("--useragent", nargs=1,
-                    help="User agent to send")
+parser.add_argument("-t", "--tests", help="Comma-separated tests to run.")
+parser.add_argument("--useragent", help="User agent to send")
 parser.add_argument("--nowww", action="store_true",
                     help="Skip scanning www.[host]")
 parser.add_argument("--nohttp", action="store_true",
@@ -967,7 +965,7 @@ args = parser.parse_args()
 # Initializing global pool manager
 user_agent = {'user-agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0'}
 if args.useragent:
-    user_agent = {'user-agent': args.useragent[0]}
+    user_agent = {'user-agent': args.useragent}
 pool = urllib3.PoolManager(10, headers=user_agent, cert_reqs='CERT_NONE',  # noqa: DUO132
                            retries=False, timeout=2)
 
@@ -979,7 +977,7 @@ if args.tests is None:
 else:
     tests = []
     try:
-        for x in args.tests[0].split(','):
+        for x in args.tests.split(','):
             tests.append(locals()["test_" + x])
     except KeyError:
         print("Test %s does not exist" % x)

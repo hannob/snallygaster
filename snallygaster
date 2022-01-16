@@ -522,7 +522,7 @@ def test_invalidsrc(url):
     r = getmainpage(url)
     try:
         p = bs4.BeautifulSoup(r, 'html.parser')
-    except NotImplementedError:
+    except (NotImplementedError, TypeError, AssertionError):
         # This is due to a python bug, please remove in the future.
         # https://bugs.python.org/issue32876
         pdebug("Can't parse due to python bug")
@@ -883,8 +883,8 @@ def test_wordpress(url):
             if not set(version).issubset("0123456789."):
                 return
             pout("wordpress", url, version)
-    except NotImplementedError:
-        # Necessary ddue to a python bug (remove in the future):
+    except (NotImplementedError, TypeError, AssertionError):
+        # Necessary due to a python bug (remove in the future):
         # https://bugs.python.org/issue32876
         return
     except KeyError:

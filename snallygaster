@@ -77,9 +77,9 @@ def pout(cause, url, misc="", noisymsg=False):
             json_out.append({"cause": cause, "url": url, "misc": misc})
         else:
             if misc:
-                print("[%s] %s %s" % (cause, url, misc))
+                print(f"[{cause}] {url} {misc}")
             else:
-                print("[%s] %s" % (cause, url))
+                print(f"[{cause}] {url}")
 
 
 def randstring():
@@ -323,7 +323,7 @@ def test_winscp_ini(url):
     for fn in ["winscp.ini", "WinSCP.ini"]:
         r = fetcher(url + "/" + fn)
         if '[Configuration]' in r:
-            pout("winscp_ini", "%s/%s" % (url, fn))
+            pout("winscp_ini", f"{url}/{fn}")
 
 
 @DEFAULT
@@ -493,13 +493,13 @@ def test_privatekey(url):
                hostkey, wwwkey]:
         r = fetcher(url + "/" + fn)
         if 'BEGIN PRIVATE KEY' in r:
-            pout("privatekey_pkcs8", "%s/%s" % (url, fn))
+            pout("privatekey_pkcs8", f"{url}/{fn}")
         if 'BEGIN RSA PRIVATE KEY' in r:
-            pout("privatekey_rsa", "%s/%s" % (url, fn))
+            pout("privatekey_rsa", f"{url}/{fn}")
         if 'BEGIN DSA PRIVATE KEY' in r:
-            pout("privatekey_dsa", "%s/%s" % (url, fn))
+            pout("privatekey_dsa", f"{url}/{fn}")
         if 'BEGIN EC PRIVATE KEY' in r:
-            pout("privatekey_ec", "%s/%s" % (url, fn))
+            pout("privatekey_ec", f"{url}/{fn}")
 
 
 @DEFAULT
@@ -507,7 +507,7 @@ def test_sshkey(url):
     for fn in ["id_rsa", "id_dsa", ".ssh/id_rsa", ".ssh/id_dsa"]:
         r = fetcher(url + "/" + fn)
         if 'BEGIN' in r and 'PRIVATE KEY' in r:
-            pout("sshkey", "%s/%s" % (url, fn))
+            pout("sshkey", f"{url}/{fn}")
 
 
 @DEFAULT
@@ -761,13 +761,13 @@ def test_thumbsdb(url):
 @DEFAULT
 def test_duplicator(url):
     for fn in ['installer.php', 'installer-backup.php']:
-        r = fetcher("%s/%s" % (url, fn))
+        r = fetcher(f"{url}/{fn}")
         if '/dup-installer/main.installer.php' in r:
-            pout("duplicator", "%s/%s" % (url, fn))
+            pout("duplicator", f"{url}/{fn}")
     for fn in ['backups-dup-pro', 'backups-dup-lite']:
-        r = fetcher("%s/wp-content/%s/" % (url, fn))
+        r = fetcher(f"{url}/wp-content/{fn}/")
         if '>Index of /' in r:
-            pout("duplicator_dirlisting", "%s/wp-content/%s/" % (url, fn))
+            pout("duplicator_dirlisting", f"{url}/wp-content/{fn}/")
 
 
 @DEFAULT
@@ -902,9 +902,9 @@ def test_mailman(url):
         else:
             ver = "unknown"
         if 'There currently are no publicly-advertised' in r:
-            pout("mailman_unused", "%s %s" % (murl, ver))
+            pout("mailman_unused", f"{murl} {ver}")
         else:
-            pout("mailman", "%s %s" % (murl, ver))
+            pout("mailman", f"{murl} {ver}")
 
 
 @INFO
@@ -1007,7 +1007,7 @@ for i, h in enumerate(hosts):
         print("ERROR: Invalid hostname")
         sys.exit(1)
     if h != hosts[i]:
-        pdebug("Converted %s to %s" % (h, hosts[i]))
+        pdebug(f"Converted {h} to {hosts[i]}")
 
 pdebug("All hosts: %s" % ",".join(hosts))
 

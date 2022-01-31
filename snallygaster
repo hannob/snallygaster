@@ -62,7 +62,7 @@ def HOSTNAME(f):
 
 def pdebug(msg):
     if args.debug:
-        print("[[debug]] %s" % msg)
+        print(f"[[debug]] {msg}")
 
 
 def pout(cause, url, misc="", noisymsg=False):
@@ -147,7 +147,7 @@ def check404(url):
         return global_what404[url]
     rndurl = url + "/" + randstring() + ".htm"
 
-    pdebug("Checking 404 page state of %s" % rndurl)
+    pdebug(f"Checking 404 page state of {rndurl}")
     try:
         r = pool.request('GET', rndurl, retries=False, redirect=False)
     except (urllib3.exceptions.HTTPError, UnicodeError,
@@ -552,7 +552,7 @@ def test_invalidsrc(url):
         if domain in checkeddomains:
             continue
         checkeddomains.append(domain)
-        pdebug("Checking url %s" % realurl)
+        pdebug(f"Checking url {realurl}")
 
         if dnscache(domain) is None:
             pout("invalidsrc_dns", url, escape(src))
@@ -824,7 +824,7 @@ def test_axfr(qhost):
 @DEFAULT
 @HOSTNAME
 def test_openmonit(qhost):
-    url = 'http://%s:2812/' % qhost
+    url = f"http://{qhost}:2812/"
     headers = urllib3.util.make_headers(basic_auth='admin:monit')
     try:
         r = pool.request('GET', url, headers=headers)
@@ -840,16 +840,16 @@ def test_openmonit(qhost):
 def test_openelasticsearch(qhost):
     headers = urllib3.util.make_headers(basic_auth='admin:admin')
     try:
-        r = pool.request('GET', 'http://%s:9200' % qhost, headers=headers)
+        r = pool.request("GET", f"http://{qhost}:9200", headers=headers)
         if '"cluster_name" :' in r.data.decode('ascii', errors='ignore'):
-            pout("openelasticsearch", 'http://%s:9200' % qhost)
+            pout("openelasticsearch", f"http://{qhost}:9200")
     except (urllib3.exceptions.HTTPError, UnicodeError,
             ConnectionRefusedError):
         pass
     try:
-        r = pool.request('GET', 'https://%s:9200' % qhost, headers=headers)
+        r = pool.request("GET", f"https://{qhost}:9200", headers=headers)
         if '"cluster_name" :' in r.data.decode('ascii', errors='ignore'):
-            pout("openelasticsearch", 'https://%s:9200' % qhost)
+            pout("openelasticsearch", f"https://{qhost}:9200")
     except (urllib3.exceptions.HTTPError, UnicodeError,
             ConnectionRefusedError):
         pass
@@ -893,7 +893,7 @@ def test_wordpress(url):
 
 @INFO
 def test_mailman(url):
-    murl = '%s/mailman/listinfo' % url
+    murl = f"{url}/mailman/listinfo"
     r = fetcher(murl)
     if 'Delivered by Mailman' in r:
         ver = re.findall('version ([0-9.]+)', r)
@@ -980,7 +980,7 @@ else:
         for x in args.tests.split(','):
             tests.append(locals()["test_" + x])
     except KeyError:
-        print("Test %s does not exist" % x)
+        print(f"Test {x} does not exist")
         sys.exit(1)
 
 if args.info:
@@ -990,7 +990,7 @@ path = args.path.rstrip("/")
 if path != "" and path[0] != "/":
     path = "/" + path
 if path != "":
-    pdebug("Path: %s" % path)
+    pdebug(f"Path: {path}")
 
 hosts = list(args.hosts)
 if not args.nowww:
@@ -1014,9 +1014,9 @@ pdebug("All hosts: %s" % ",".join(hosts))
 
 json_out = []
 for host in hosts:
-    pdebug("Scanning %s" % host)
+    pdebug(f"Scanning {host}")
     for test in tests:
-        pdebug("Running %s test" % test.__name__)
+        pdebug(f"Running {test.__name__} test")
         if hasattr(test, '_is_hostname_test'):
             test(host)
         else:

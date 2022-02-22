@@ -916,6 +916,7 @@ def test_composer(url):
             pout("composer", furl)
 
 
+@INFO
 def test_phpinfo(url):
     for fn in ["phpinfo.php", "info.php", "i.php", "test.php"]:
         r = fetcher(url + "/" + fn)

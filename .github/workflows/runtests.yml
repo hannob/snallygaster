@@ -8,7 +8,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8,3.x,3.11-dev]
+        # No python 3.11 due to wrapt (indirect pylint dep) incompatibility.
+        # wrapt bug here https://github.com/GrahamDumpleton/wrapt/issues/196
+        # is fixed, but astroid https://github.com/PyCQA/astroid
+        # depends on old wrapt version
+        python-version: [3.8,3.x]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}

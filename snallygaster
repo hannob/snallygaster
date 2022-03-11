@@ -16,6 +16,7 @@ import socket
 import urllib.parse
 import warnings
 import json
+import time
 
 import bs4
 import dns.resolver
@@ -94,6 +95,8 @@ def fetcher(fullurl, binary=False, getredir=False, geterrpage=False):
     data = ""
     redir = ""
     try:
+        if args.waittime:
+            time.sleep(args.waittime / 1000.0)
         r = pool.request('GET', fullurl, retries=False, redirect=False)
         if getredir:
             headers = {k.lower(): v for k, v in r.headers.items()}
@@ -115,6 +118,8 @@ def fetcher(fullurl, binary=False, getredir=False, geterrpage=False):
 
 def fetchpartial(fullurl, size, returnsize=False, binary=False):
     try:
+        if args.waittime:
+            time.sleep(args.waittime / 1000.0)
         r = pool.request('GET', fullurl, retries=False, redirect=False,
                          preload_content=False)
         if r.status == 200:
@@ -959,6 +964,7 @@ parser.add_argument("-p", "--path", default='', action="store", type=str,
                     help="Base path on server (scans root dir by default)")
 parser.add_argument("-j", "--json", action="store_true",
                     help="Produce JSON output")
+parser.add_argument("-w", "--waittime", type=int, help="Waittime between each request in milliseconds")
 parser.add_argument("-d", "--debug", action="store_true",
                     help="Show detailed debugging info")
 args = parser.parse_args()

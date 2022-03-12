@@ -37,7 +37,7 @@ The code complies with [pycodestyle](https://pypi.python.org/pypi/pycodestyle), 
 The code should produce no warnings with this command:
 
 ```
-pycodestyle --ignore=E501,W503 snallygaster
+python tests\test_codingstyle.py
 ```
 
 

@@ -5,7 +5,11 @@
 # * urllib3 (for HTTP requests with Keep Alive support)
 # * beautifulsoup (for HTML parsing)
 # * dnspython (for DNS queries)
-
+"""
+    snallygaster is a tool that looks for files accessible
+    on web servers that shouldn't be public and can pose a
+    security risk.
+"""
 
 import argparse
 import sys
@@ -46,16 +50,19 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)  # noqa: DUO
 
 
 def DEFAULT(f):
+    """Setting _is_default_test attribute to object f"""
     setattr(f, '_is_default_test', True)
     return f
 
 
 def INFO(f):
+    """Setting _is_info_test attribute to object f"""
     setattr(f, '_is_info_test', True)
     return f
 
 
 def HOSTNAME(f):
+    """Setting _is_hostname_test attribute to object f"""
     setattr(f, '_is_hostname_test', True)
     return f
 
@@ -83,6 +90,7 @@ def pout(cause, url, misc="", noisymsg=False):
 
 
 def randstring():
+    """Returns a random 8 character string"""
     return "".join(random.SystemRandom().choice(string.ascii_lowercase) for i in range(8))
 
 
@@ -883,7 +891,9 @@ def test_wordpress(url):
             if not set(version).issubset("0123456789."):
                 return
             pout("wordpress", url, version)
+
     except (NotImplementedError, TypeError, AssertionError):
+
         # Necessary due to a python bug (remove in the future):
         # https://bugs.python.org/issue32876
         return

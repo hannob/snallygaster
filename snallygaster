@@ -273,6 +273,17 @@ def test_svn_dir(url):
     except ValueError:
         pass
 
+@DEFAULT
+def test_svn_db(url):
+    r = fetcher(url + '/.svn/wc.db')
+    if 'FILE' in r and 'DIR' in r:
+        pout("svn_db", url + "/.svb/wc.db")
+
+@DEFAULT
+def test_cvs_dir(url):
+    r = fetcher(url + '/CVS/root')
+    if ':' in r and not '<' in r:
+        pout("svn_db", url + "/CVS/root")
 
 @DEFAULT
 def test_apache_server_status(url):

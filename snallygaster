@@ -282,13 +282,6 @@ def test_svn_db(url):
 
 
 @DEFAULT
-def test_cvs_dir(url):
-    r = fetcher(url + '/CVS/root')
-    if ':' in r and '<' not in r:
-        pout("svn_db", url + "/CVS/root")
-
-
-@DEFAULT
 def test_apache_server_status(url):
     r = fetcher(url + '/server-status')
     if 'Apache Status' in r:

@@ -65,12 +65,6 @@ Identical to git_dir issue, just with Subversion instead of Git.
 * [Version Control with subversion](https://www.oreilly.com/library/view/version-control-with/9780596510336/ch08s02s01.html)
 
 
-cvs_dir
--------
-
-Identical to git_dir issue, just with CVS instead of Git.
-
-
 apache_server_status
 --------------------
 

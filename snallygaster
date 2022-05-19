@@ -961,13 +961,20 @@ parser.add_argument("-j", "--json", action="store_true",
                     help="Produce JSON output")
 parser.add_argument("-d", "--debug", action="store_true",
                     help="Show detailed debugging info")
+parser.add_argument("--proxy", help="Use http proxy")
 args = parser.parse_args()
 
 # Initializing global pool manager
 user_agent = {'user-agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0'}
 if args.useragent:
     user_agent = {'user-agent': args.useragent}
-pool = urllib3.PoolManager(10, headers=user_agent, cert_reqs='CERT_NONE',  # noqa: DUO132
+if args.proxy:
+    if not args.proxy.startswith('http'):
+        args.proxy = 'http://' + args.proxy
+    pool = urllib3.ProxyManager(args.proxy, 10, headers=user_agent, cert_reqs='CERT_NONE',
+                           retries=False, timeout=2)
+else:
+    pool = urllib3.PoolManager(10, headers=user_agent, cert_reqs='CERT_NONE',  # noqa: DUO132
                            retries=False, timeout=2)
 
 # This is necessary for directory traversal attacks like citrix_cve

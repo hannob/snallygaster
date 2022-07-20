@@ -803,7 +803,7 @@ def test_axfr(qhost):
             else:  # dnspython before 2.0
                 ipv4 = dns.resolver.query(r, 'a').rrset
                 ipv6 = dns.resolver.query(r, 'aaaa').rrset
-        except dns.resolver.NoAnswer:
+        except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
             pass
         ips = []
         for ip in ipv4:

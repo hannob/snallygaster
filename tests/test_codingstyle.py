@@ -11,7 +11,7 @@ class TestCodingstyle(unittest.TestCase):
                        + pyfiles, check=True)
         subprocess.run(["pyflakes"] + pyfiles, check=True)
         subprocess.run(["pylint", "--disable=missing-docstring,invalid-name,"
-                                  "bad-continuation,consider-using-with,"
+                                  "consider-using-with,"
                                   "too-many-lines,consider-using-f-string"]
                        + pyfiles, check=True)
         subprocess.run(["flake8", "--select=DUO"] + pyfiles, check=True)

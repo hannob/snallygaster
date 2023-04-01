@@ -154,7 +154,7 @@ def check404(url):
             ConnectionRefusedError):
         return False
     what404 = {}
-    what404['state'] = (r.status != 200)
+    what404['state'] = r.status != 200
     what404['content'] = r.data.decode('ascii', errors='ignore')
     if any(m in what404['content'] for m in ['<?php', '<?=']):
         # we're getting php code for 404 pages

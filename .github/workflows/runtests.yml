@@ -6,9 +6,14 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.continue-on-error }}
     strategy:
       matrix:
-        python-version: [3.7,3.x,3.12-dev]
+        python-version: [3.7, 3.x]
+        continue-on-error: [false]
+        include:
+        - python-version: 3.12-dev
+          continue-on-error: true
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}

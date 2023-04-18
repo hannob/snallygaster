@@ -736,9 +736,9 @@ def test_vb_test(url):
 def test_headerinject(url):
     rnd = randstring()
     try:
-        r = pool.request('GET', url + '/%%0D%%0A%s:1' % rnd, retries=False, redirect=False)
+        r = pool.request('GET', f'{url}/%0D%0A{rnd}:1', retries=False, redirect=False)
         if rnd in r.headers:
-            pout("headerinject", url + '/%%0D%%0A%s:1' % rnd)
+            pout("headerinject", f'{url}/%0D%0A{rnd}:1')
     except (urllib3.exceptions.HTTPError, UnicodeError,
             ConnectionRefusedError):
         pass
@@ -1010,7 +1010,7 @@ for i, h in enumerate(hosts):
     if h != hosts[i]:
         pdebug(f"Converted {h} to {hosts[i]}")
 
-pdebug("All hosts: %s" % ",".join(hosts))
+pdebug(f"All hosts: {','.join(hosts)}")
 
 
 json_out = []

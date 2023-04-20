@@ -274,7 +274,7 @@ cgiecho
 
 The cgiecho tool is part of the unmaintained software cgiemail. It contains a
 vulnerability where it allows leaking arbitrary files from the web root if they contain
-any guessable string in square brackets (e.g. ['password']).
+any guessable string in square brackets (e.g. `['password']`).
 
 * [Cgiemail - Source Code Disclosure/Local File Inclusion Exploit](
   https://github.com/finbar-crago/cgiemail-exploit)

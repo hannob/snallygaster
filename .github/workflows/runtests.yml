@@ -1,7 +1,8 @@
+---
 name: run tests
-on:
-- pull_request
-- push
+"on":
+  - pull_request
+  - push
 
 jobs:
   build:
@@ -10,7 +11,7 @@ jobs:
       matrix:
         # disabling 3.12-dev until pylint is fixed:
         # https://github.com/pylint-dev/pylint/issues/8588
-        python-version: [3.7,3.x]
+        python-version: [3.7, 3.x]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}

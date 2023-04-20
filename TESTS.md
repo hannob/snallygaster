@@ -146,9 +146,9 @@ backupfiles
 
 Backup files and other leftovers from editors. Many editors create files with a ~ or
 .bak extension when overwriting a previous version. VIM creates swap files of the scheme
-.[filename].swp. On crashes EMACS creates #[filename]#. All of these are particularly
-problematic in combination with PHP, as a file that may contain secrets will end up on
-the webspace without a .php extension and thus won't be parsed.
+`.[filename].swp`. On crashes EMACS creates `#[filename]#`. All of these are
+particularly problematic in combination with PHP, as a file that may contain secrets
+will end up on the webspace without a .php extension and thus won't be parsed.
 
 * [FEROSS: 1% of CMS-Powered Sites Expose Their Database Passwords](
   https://feross.org/cmsploit/)

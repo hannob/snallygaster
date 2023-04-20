@@ -1,9 +1,10 @@
-# snallygaster
+snallygaster
+============
 
 Finds file leaks and other security problems on HTTP servers.
 
 what?
-=====
+-----
 
 snallygaster is a tool that looks for files accessible on web servers that shouldn't be
 public and can pose a security risk.
@@ -19,7 +20,7 @@ See the [TESTS.md](TESTS.md) file for an overview of all tests and links to furt
 information about the issues.
 
 install
-=======
+-------
 
 snallygaster is available [via pypi](https://pypi.python.org/pypi/snallygaster):
 
@@ -36,7 +37,7 @@ apt install python3-dnspython python3-urllib3 python3-bs4
 ```
 
 distribution packages
-=====================
+---------------------
 
 Some Linux and BSD systems have snallygaster packaged:
 
@@ -46,7 +47,7 @@ Some Linux and BSD systems have snallygaster packaged:
 * [openSUSE](https://software.opensuse.org/package/snallygaster)
 
 faq
-===
+---
 
 Q: I want to contribute / send a patch / a pull request!
 
@@ -66,7 +67,7 @@ that there are dragon legends in the US interesting and I found no other piece o
 software with that name.
 
 credit and thanks
-=================
+-----------------
 
 * Thanks to Tim Philipp Schäfers and Sebastian Neef from the [Internetwache](
   https://www.internetwache.org/) for plenty of ideas about things to look for.
@@ -80,6 +81,6 @@ credit and thanks
   track at 34C3 for letting me present this work.
 
 author
-======
+------
 
 snallygaster is developed and maintained by [Hanno Böck](https://hboeck.de/).

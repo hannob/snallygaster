@@ -16,6 +16,7 @@ import socket
 import urllib.parse
 import warnings
 import json
+import ssl
 
 import bs4
 import dns.resolver
@@ -968,7 +969,7 @@ user_agent = {'user-agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/2010
 if args.useragent:
     user_agent = {'user-agent': args.useragent}
 pool = urllib3.PoolManager(10, headers=user_agent, cert_reqs='CERT_NONE',  # noqa: DUO132
-                           retries=False, timeout=2)
+                           retries=False, timeout=2, ssl_minimum_version=ssl.TLSVersion.SSLv3)
 
 # This is necessary for directory traversal attacks like citrix_cve
 urllib3.util.url.NORMALIZABLE_SCHEMES = ()

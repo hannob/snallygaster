@@ -9,8 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # disabling 3.12-dev until pylint is fixed:
-        # https://github.com/pylint-dev/pylint/issues/8588
         python-version: [3.7, 3.x]
     steps:
       - uses: actions/checkout@v3

@@ -473,6 +473,13 @@ mailman
 Check for mailman and output version.
 
 
+django_staticfiles_json
+-----------------------
+
+Checks for the presence of a Django assets manifest file
+[`staticfiles.json`](https://docs.djangoproject.com/en/4.2/ref/contrib/staticfiles/).
+
+
 composer
 --------
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+
 import setuptools
 
 package_name = "snallygaster"

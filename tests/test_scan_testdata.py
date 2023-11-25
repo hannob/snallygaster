@@ -1,10 +1,10 @@
-import unittest
-import subprocess
-import os
-import tempfile
 import http.server
+import os
 import ssl
+import subprocess
+import tempfile
 import threading
+import unittest
 
 TESTDATA_REPO = "https://github.com/hannob/snallygaster-testdata"
 

@@ -1,6 +1,6 @@
-import unittest
-import subprocess
 import glob
+import subprocess
+import unittest
 
 
 class TestCodingstyle(unittest.TestCase):

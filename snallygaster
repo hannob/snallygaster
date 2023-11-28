@@ -981,8 +981,13 @@ args = parser.parse_args()
 user_agent = {'user-agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0'}
 if args.useragent:
     user_agent = {'user-agent': args.useragent}
-pool = urllib3.PoolManager(10, headers=user_agent, cert_reqs='CERT_NONE',  # noqa: DUO132
-                           retries=False, timeout=2, ssl_minimum_version=ssl.TLSVersion.SSLv3)
+urllib3_major = int(urllib3.__version__.split(".")[0])
+if urllib3_major >= 2:
+    pool = urllib3.PoolManager(10, headers=user_agent, cert_reqs='CERT_NONE',  # noqa: DUO132
+                               retries=False, timeout=2, ssl_minimum_version=ssl.TLSVersion.SSLv3)
+else:
+    pool = urllib3.PoolManager(10, headers=user_agent, cert_reqs='CERT_NONE',  # noqa: DUO132
+                               retries=False, timeout=2)
 
 # This is necessary for directory traversal attacks like citrix_cve
 urllib3.util.url.NORMALIZABLE_SCHEMES = ()

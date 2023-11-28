@@ -17,5 +17,5 @@ class TestCodingstyle(unittest.TestCase):
         subprocess.run(["pyupgrade", "--py311-plus"] + pyfiles, check=True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

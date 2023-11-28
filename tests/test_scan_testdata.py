@@ -35,9 +35,9 @@ class TestScanTestdata(unittest.TestCase):
 
         olddir = os.getcwd()
         os.chdir(tmp + "/testdata")
-        httpd = http.server.HTTPServer(('localhost', 4443), http.server.SimpleHTTPRequestHandler)
+        httpd = http.server.HTTPServer(("localhost", 4443), http.server.SimpleHTTPRequestHandler)
         context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-        context.load_cert_chain(certfile=tmp + '/testdata/testserver.pem')
+        context.load_cert_chain(certfile=tmp + "/testdata/testserver.pem")
         httpd.socket = context.wrap_socket(httpd.socket, server_side=True)
         t = threading.Thread(target=httpd.serve_forever)
         t.daemon = True
@@ -51,5 +51,5 @@ class TestScanTestdata(unittest.TestCase):
             self.assertEqual(output, expected)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

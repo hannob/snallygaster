@@ -519,6 +519,13 @@ def test_dotenv(url):
 
 
 @DEFAULT
+def test_vagrantfile(url):
+    r = fetcher(url + "/Vagrantfile")
+    if "Vagrant.configure" in r:
+        pout("Vagrantfile", url + "/Vagrantfile")
+
+
+@DEFAULT
 def test_invalidsrc(url):
     r = getmainpage(url)
     try:

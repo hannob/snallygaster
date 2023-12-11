@@ -31,8 +31,8 @@ follow coding paradigm XYZ" are not good reasons.
 Coding style
 ============
 
-The code complies with [pycodestyle](https://pypi.python.org/pypi/pycodestyle), except
-for the W503-rule to comply with the latest PEP 8 [recommendation for the placement of
+The code complies with [pycodestyle](https://pypi.org/project/pycodestyle/), except for
+the W503-rule to comply with the latest PEP 8 [recommendation for the placement of
 binary operators](
 https://www.python.org/dev/peps/pep-0008/#should-a-line-break-before-or-after-a-binary-operator).
 

@@ -178,7 +178,7 @@ This checks for common names of SQL database dumps. These can lead to massive da
 leaks.
 
 * [Zeit Online: How 2,000 Unsecured Databases Landed on the Internet](
-  http://www.zeit.de/digital/datenschutz/2017-07/customer-data-how-2000-unsecured-databases-landed-online)
+  https://www.zeit.de/digital/datenschutz/2017-07/customer-data-how-2000-unsecured-databases-landed-online)
 
 
 bitcoin_wallet
@@ -204,7 +204,7 @@ XML file called "local.xml". Access is prevented with an Apache .htaccess file, 
 does not work on other web servers.
 
 * [oss-security: Magento leaking of config file local.xml](
-  http://seclists.org/oss-sec/2017/q4/141)
+  https://seclists.org/oss-sec/2017/q4/141)
 
 
 xaa
@@ -476,8 +476,8 @@ Check for mailman and output version.
 django_staticfiles_json
 -----------------------
 
-Checks for the presence of a Django assets manifest file
-[`staticfiles.json`](https://docs.djangoproject.com/en/4.2/ref/contrib/staticfiles/).
+Checks for the presence of a Django assets manifest file [`staticfiles.json`
+](https://docs.djangoproject.com/en/4.2/ref/contrib/staticfiles/).
 
 
 composer

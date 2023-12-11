@@ -22,7 +22,7 @@ information about the issues.
 install
 -------
 
-snallygaster is available [via pypi](https://pypi.python.org/pypi/snallygaster):
+snallygaster is available [via pypi](https://pypi.org/project/snallygaster/):
 
 ```
 pip3 install snallygaster

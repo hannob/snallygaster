@@ -11,6 +11,6 @@ Reporting a Vulnerability
 
 Low impact vulnerabilities, e.g. DoS, can be reported directly to the issue tracker.
 
-Severe vulnerabilities can be reported via E-Mail (optionally PGP-Encrypted):
+Severe vulnerabilities can be reported via E-Mail:
 
 * https://hboeck.de/en/contact.html

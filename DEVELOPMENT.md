@@ -12,9 +12,9 @@ How to make a new release
   ```
 * Build the wheel and source distribution:
   ```
-  python setup.py bdist_wheel sdist
+  python -m build
   ```
 * Upload to PyPI:
   ```
-  twine upload -s dist/*
+  twine upload dist/*
   ```

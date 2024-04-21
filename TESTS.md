@@ -363,7 +363,7 @@ telescope
 ---------
 
 Search for publicly accessible instances of the Laravel Telescope software. This allows
-seeing detailled HTTP requests including Cookies and thus should never be accessible in
+seeing detailed HTTP requests, including Cookies, and thus should never be accessible in
 production.
 
 

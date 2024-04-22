@@ -23,7 +23,7 @@ import dns.resolver
 import dns.query
 import dns.zone
 import urllib3
-
+from bs4.builder import XMLParsedAsHTMLWarning
 
 STANDARD_PHP_FILES = ["index.php", "wp-config.php", "configuration.php",
                       "config.php", "config.inc.php", "settings.php"]
@@ -39,6 +39,8 @@ dns_cache = {}
 # content of a webpage looks suspicious, i.e. when it only
 # contains a single URL or a filename.
 warnings.filterwarnings("ignore", category=UserWarning, module="bs4")
+# Disable warnings when BeautifulSoup sees an XML document
+warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning, module="html.parser")
 
 # This disables warnings about the lack of certificate verification.
 # Usually this is a bad idea, but for this tool we want to find HTTPS leaks

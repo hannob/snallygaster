@@ -8,19 +8,19 @@
 
 
 import argparse
-import sys
+import json
 import random
-import string
 import re
 import socket
+import ssl
+import string
+import sys
 import urllib.parse
 import warnings
-import json
-import ssl
 
 import bs4
-import dns.resolver
 import dns.query
+import dns.resolver
 import dns.zone
 import urllib3
 from bs4.builder import XMLParsedAsHTMLWarning

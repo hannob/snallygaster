@@ -947,10 +947,10 @@ def new_excepthook(etype, value, traceback):
 
     print("Oh oh... an unhandled exception has happened. This shouldn't be.")
     print("Please report a bug and include all output.")
-    print("")
+    print()
     print("called with")
     print(" ".join(sys.argv))
-    print("")
+    print()
     sys.__excepthook__(etype, value, traceback)
 
 

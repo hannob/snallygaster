@@ -418,6 +418,14 @@ about possibly installed software on a developer machine or file names. Impact i
 usually low, but it is very common.
 
 
+postdebug
+---------
+
+Some web frameworks show a debugging console when they receive an unexpected HTTP
+method. This can often be triggered by sending a POST request to the main page. This
+test looks for such debugging consoles from Laravel, Symfony, and Rails.
+
+
 axfr
 ----
 

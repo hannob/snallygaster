@@ -786,6 +786,24 @@ def test_desktopini(url):
 
 
 @DEFAULT
+def test_postdebug(url):
+    try:
+        r = pool.request("POST", url, retries=False, redirect=False)
+        data = r.data.decode("ascii", errors="ignore")
+        if (
+            "The POST method is not supported for" in data
+            and "Symfony\\Component\\HttpKernel\\Exception" in data
+        ):
+            pout("postdebug_laravel", url + " POST")
+        elif "Symfony Exception" in data and '<div class="exception-' in data:
+            pout("postdebug_symfony", url + " POST")
+        elif "<title>Action Controller: Exception caught" in data:
+            pout("postdebug_rails", url + " POST")
+    except (urllib3.exceptions.HTTPError, UnicodeError, ConnectionRefusedError):
+        pass
+
+
+@DEFAULT
 @HOSTNAME
 def test_axfr(qhost):
     try:

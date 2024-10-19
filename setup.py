@@ -25,13 +25,13 @@ setuptools.setup(
     scripts=["snallygaster"],
     python_requires=">=3.7",
     install_requires=["urllib3", "beautifulsoup4", "dnspython"],
-    license="CC0",
+    license="0BSD",
     zip_safe=True,
     keywords=["security", "vulnerability", "http"],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: System Administrators",
-        "License :: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
+        "License :: OSI Approved :: Zero-Clause BSD (0BSD)",
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
@@ -41,5 +41,6 @@ setuptools.setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
     ],
 )

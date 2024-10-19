@@ -39,8 +39,6 @@ dns_cache = {}
 # content of a webpage looks suspicious, i.e. when it only
 # contains a single URL or a filename. Since 4.9.1.
 warnings.filterwarnings("ignore", category=bs4.MarkupResemblesLocatorWarning)
-# For BeautifulSoup before 4.9.1, can be removed at some point.
-warnings.filterwarnings("ignore", category=UserWarning, module="bs4")
 # Disable warnings when BeautifulSoup sees an XML document
 warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning, module="html.parser")
 

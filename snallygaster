@@ -960,7 +960,7 @@ def test_phpinfo(url):
 
 
 def new_excepthook(etype, value, traceback):
-    if etype == KeyboardInterrupt:
+    if etype is KeyboardInterrupt:
         pdebug("Interrupted by user...")
         sys.exit(1)
 

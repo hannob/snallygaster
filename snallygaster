@@ -49,17 +49,17 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)  # noqa: DUO
 
 
 def DEFAULT(f):
-    setattr(f, "_is_default_test", True)
+    f._is_default_test = True
     return f
 
 
 def INFO(f):
-    setattr(f, "_is_info_test", True)
+    f._is_info_test = True
     return f
 
 
 def HOSTNAME(f):
-    setattr(f, "_is_hostname_test", True)
+    f._is_hostname_test = True
     return f
 
 
@@ -78,11 +78,10 @@ def pout(cause, url, misc="", noisymsg=False):
         duplicate_preventer.append(dup_check)
         if args.json:
             json_out.append({"cause": cause, "url": url, "misc": misc})
+        elif misc:
+            print(f"[{cause}] {url} {misc}")
         else:
-            if misc:
-                print(f"[{cause}] {url} {misc}")
-            else:
-                print(f"[{cause}] {url}")
+            print(f"[{cause}] {url}")
 
 
 def randstring():
@@ -100,8 +99,7 @@ def fetcher(fullurl, binary=False, getredir=False, geterrpage=False):
         r = pool.request("GET", fullurl, retries=False, redirect=False)
         if getredir:
             headers = {k.lower(): v for k, v in r.headers.items()}
-            if "location" in headers:
-                redir = headers["location"]
+            redir = headers.get("location", "")
         elif (r.status != 200 and not geterrpage):
             data = ""
         elif binary:
@@ -192,10 +190,7 @@ def getmainpage(url):
         else:
             data = ""
         headers = {k.lower(): v for k, v in r.headers.items()}
-        if "location" in headers:
-            redir = headers["location"]
-        else:
-            redir = ""
+        redir = headers.get("location", "")
     except (urllib3.exceptions.HTTPError, UnicodeError,
             ConnectionRefusedError):
         mainpage_cache[url] = {}
@@ -813,8 +808,8 @@ def test_axfr(qhost):
             ConnectionResetError, ConnectionRefusedError,
             EOFError, socket.gaierror, TimeoutError, OSError):
         return
-    for r in ns.rrset:
-        r = str(r)
+    for rr in ns.rrset:
+        r = str(rr)
         ipv4 = []
         ipv6 = []
         try:
@@ -1039,7 +1034,7 @@ if not args.nowww:
         hosts.append("www." + h)
 
 for i, h in enumerate(hosts):
-    if h.startswith("http://") or h.startswith("https://"):
+    if h.startswith(("http://", "https://")):
         print("ERROR: Please run snallygaster with a hostname, not a URL.")
         sys.exit(1)
     try:

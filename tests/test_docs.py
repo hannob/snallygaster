@@ -12,7 +12,7 @@ class TestCodingstyle(unittest.TestCase):
         fd = open("TESTS.md", encoding="utf-8")
         docs = []
         ol = ""
-        for line in fd.readlines():
+        for line in fd:
             if line.startswith("---"):
                 docs.append(ol.rstrip())
             ol = line

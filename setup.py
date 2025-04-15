@@ -24,7 +24,7 @@ setuptools.setup(
     packages=[],
     scripts=["snallygaster"],
     python_requires=">=3.7",
-    install_requires=["urllib3", "beautifulsoup4", "dnspython"],
+    install_requires=["urllib3", "beautifulsoup4>=4.11.0", "dnspython"],
     license="0BSD",
     zip_safe=True,
     keywords=["security", "vulnerability", "http"],

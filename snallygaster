@@ -3,7 +3,7 @@
 # Dependencies:
 # * Python 3
 # * urllib3 (for HTTP requests with Keep Alive support)
-# * beautifulsoup (for HTML parsing)
+# * lxml (for HTML parsing)
 # * dnspython (for DNS queries)
 
 
@@ -16,15 +16,13 @@ import ssl
 import string
 import sys
 import urllib.parse
-import warnings
 
-import bs4
 import dns.query
 import dns.resolver
 import dns.zone
+import lxml.etree
 import lxml.html
 import urllib3
-from bs4.builder import XMLParsedAsHTMLWarning
 
 STANDARD_PHP_FILES = ["index.php", "wp-config.php", "configuration.php",
                       "config.php", "config.inc.php", "settings.php"]
@@ -35,13 +33,6 @@ global_what404 = {}
 duplicate_preventer = []
 mainpage_cache = {}
 dns_cache = {}
-
-# This prevents BeautifulSoup from causing warnings when the
-# content of a webpage looks suspicious, i.e. when it only
-# contains a single URL or a filename. Since 4.9.1.
-warnings.filterwarnings("ignore", category=bs4.MarkupResemblesLocatorWarning)
-# Disable warnings when BeautifulSoup sees an XML document
-warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning, module="html.parser")
 
 # This disables warnings about the lack of certificate verification.
 # Usually this is a bad idea, but for this tool we want to find HTTPS leaks
@@ -520,17 +511,12 @@ def test_dotenv(url):
 def test_invalidsrc(url):
     r = getmainpage(url)
     try:
-        p = bs4.BeautifulSoup(r, "html.parser")
-    except (NotImplementedError, TypeError, AssertionError):
-        # This is due to a python bug, please remove in the future.
-        # https://bugs.python.org/issue32876
-        pdebug("Can't parse due to python bug")
+        p = lxml.html.document_fromstring(r.encode())
+    except lxml.etree.ParserError:
         return
-    srcs = []
-    for tag in p.findAll(attrs={"src": True}):
-        srcs.append(tag["src"])
-    srcs = list(set(srcs))
-    srcs.sort()
+
+    g = p.xpath("//*[@src]/@src")
+    srcs = sorted(set(g))
 
     checkeddomains = []
     for src in srcs:
@@ -893,13 +879,15 @@ def test_drupal(url):
 @INFO
 def test_wordpress(url):
     r = getmainpage(url)
-    if r:
+    try:
         p = lxml.html.document_fromstring(r.encode())
-        g = p.xpath("//meta[@name='generator']/@content")
-        if g and g[0].startswith("WordPress "):
-            version = g[0].split(" ", 1)[1]
-            if set(version).issubset("0123456789."):
-                pout("wordpress", url, version)
+    except lxml.etree.ParserError:
+        return
+    g = p.xpath("//meta[@name='generator']/@content")
+    if g and g[0].startswith("WordPress "):
+        version = g[0].split(" ", 1)[1]
+        if set(version).issubset("0123456789."):
+            pout("wordpress", url, version)
 
 
 @INFO

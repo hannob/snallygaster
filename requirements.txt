@@ -1,3 +1,3 @@
-urllib3
-beautifulsoup4
 dnspython
+lxml
+urllib3

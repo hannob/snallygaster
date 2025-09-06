@@ -526,7 +526,7 @@ def test_invalidsrc(url):
         pdebug("Can't parse due to python bug")
         return
     srcs = []
-    for tag in p.findAll(attrs={"src": True}):
+    for tag in p.find_all(attrs={"src": True}):
         srcs.append(tag["src"])
     srcs = list(set(srcs))
     srcs.sort()
@@ -894,7 +894,7 @@ def test_wordpress(url):
     r = getmainpage(url)
     try:
         p = bs4.BeautifulSoup(r, "html.parser")
-        g = p.findAll("meta", {"name": "generator"})
+        g = p.find_all("meta", {"name": "generator"})
         if g and g[0]["content"][:9] == "WordPress":
             version = g[0]["content"][10:]
             if not set(version).issubset("0123456789."):

@@ -20,8 +20,8 @@ import urllib.parse
 import dns.query
 import dns.resolver
 import dns.zone
-import lxml.etree
-import lxml.html
+import lxml.etree  # noqa: DUO107
+import lxml.html  # noqa: DUO107
 import urllib3
 
 STANDARD_PHP_FILES = ["index.php", "wp-config.php", "configuration.php",

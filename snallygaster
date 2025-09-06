@@ -22,6 +22,7 @@ import bs4
 import dns.query
 import dns.resolver
 import dns.zone
+import lxml.html
 import urllib3
 from bs4.builder import XMLParsedAsHTMLWarning
 
@@ -892,20 +893,13 @@ def test_drupal(url):
 @INFO
 def test_wordpress(url):
     r = getmainpage(url)
-    try:
-        p = bs4.BeautifulSoup(r, "html.parser")
-        g = p.findAll("meta", {"name": "generator"})
-        if g and g[0]["content"][:9] == "WordPress":
-            version = g[0]["content"][10:]
-            if not set(version).issubset("0123456789."):
-                return
-            pout("wordpress", url, version)
-    except (NotImplementedError, TypeError, AssertionError):
-        # Necessary due to a python bug (remove in the future):
-        # https://bugs.python.org/issue32876
-        return
-    except KeyError:
-        return
+    if r:
+        p = lxml.html.document_fromstring(r.encode())
+        g = p.xpath("//meta[@name='generator']/@content")
+        if g and g[0].startswith("WordPress "):
+            version = g[0].split(" ", 1)[1]
+            if set(version).issubset("0123456789."):
+                pout("wordpress", url, version)
 
 
 @INFO

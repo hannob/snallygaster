@@ -426,6 +426,20 @@ method. This can often be triggered by sending a POST request to the main page. 
 test looks for such debugging consoles from Laravel, Symfony, and Rails.
 
 
+djangodebug
+-----------
+
+Information on 404 error pages can identify Django installations with debugging mode
+enabled.
+
+
+symfonydebug
+------------
+
+Similar to djangodebug, information on 404 error pages can identify Symfony
+instalaltions with debugging mode enabled.
+
+
 axfr
 ----
 

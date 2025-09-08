@@ -8,6 +8,7 @@
 
 
 import argparse
+import functools
 import json
 import random
 import re
@@ -29,7 +30,6 @@ STANDARD_PHP_FILES = ["index.php", "wp-config.php", "configuration.php",
 
 
 # initializing global state variables
-global_what404 = {}
 duplicate_preventer = []
 mainpage_cache = {}
 dns_cache = {}
@@ -77,6 +77,13 @@ def pout(cause, url, misc="", noisymsg=False):
 
 
 def randstring():
+    return "".join(random.SystemRandom().choice(string.ascii_lowercase) for i in range(8))
+
+
+# a random string that stays the same during one execution of snallygaster,
+# makes duplicate detection easier.
+@functools.cache
+def staticrandstring():
     return "".join(random.SystemRandom().choice(string.ascii_lowercase) for i in range(8))
 
 
@@ -135,10 +142,9 @@ def fetchpartial(fullurl, size, returnsize=False, binary=False):
     return ""
 
 
+@functools.cache
 def check404(url):
-    if url in global_what404:
-        return global_what404[url]
-    rndurl = url + "/" + randstring() + ".htm"
+    rndurl = url + "/" + staticrandstring() + ".htm"
 
     pdebug(f"Checking 404 page state of {rndurl}")
     try:
@@ -147,6 +153,7 @@ def check404(url):
             ConnectionRefusedError):
         return False
     what404 = {}
+    what404["rndurl"] = rndurl
     what404["state"] = r.status != 200
     what404["content"] = r.data.decode("ascii", errors="ignore")
     if any(m in what404["content"] for m in ["<?php", "<?="]):
@@ -161,13 +168,7 @@ def check404(url):
         what404["sql"] = True
     else:
         what404["sql"] = False
-    if "you have <code>DEBUG = True</code>" in what404["content"]:
-        pout("django_debug", rndurl)
-    if "<title>No route found" in what404["content"] and \
-       "Symfony Exception" in what404["content"]:
-        pout("symfony_debug", rndurl)
 
-    global_what404[url] = what404
     return what404
 
 
@@ -781,6 +782,21 @@ def test_postdebug(url):
             pout("postdebug_rails", url + " POST")
     except (urllib3.exceptions.HTTPError, UnicodeError, ConnectionRefusedError):
         pass
+
+
+@DEFAULT
+def test_djangodebug(url):
+    what404 = check404(url)
+    if "you have <code>DEBUG = True</code>" in what404["content"]:
+        pout("djangodebug", what404["rndurl"])
+
+
+@DEFAULT
+def test_symfonydebug(url):
+    what404 = check404(url)
+    if "<title>No route found" in what404["content"] and \
+       "Symfony Exception" in what404["content"]:
+        pout("symfonydebug", what404["rndurl"])
 
 
 @DEFAULT

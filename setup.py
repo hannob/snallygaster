@@ -31,7 +31,6 @@ setuptools.setup(
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: System Administrators",
-        "License :: OSI Approved :: Zero-Clause BSD (0BSD)",
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",

@@ -437,7 +437,7 @@ symfonydebug
 ------------
 
 Similar to djangodebug, information on 404 error pages can identify Symfony
-instalaltions with debugging mode enabled.
+installations with debugging mode enabled.
 
 
 axfr

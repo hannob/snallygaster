@@ -787,14 +787,14 @@ def test_postdebug(url):
 @DEFAULT
 def test_djangodebug(url):
     what404 = check404(url)
-    if "you have <code>DEBUG = True</code>" in what404["content"]:
+    if what404 and "you have <code>DEBUG = True</code>" in what404["content"]:
         pout("djangodebug", what404["rndurl"])
 
 
 @DEFAULT
 def test_symfonydebug(url):
     what404 = check404(url)
-    if "<title>No route found" in what404["content"] and \
+    if what404 and "<title>No route found" in what404["content"] and \
        "Symfony Exception" in what404["content"]:
         pout("symfonydebug", what404["rndurl"])
 

@@ -6,7 +6,7 @@ import unittest
 class TestCodingstyle(unittest.TestCase):
     @staticmethod
     def test_codingstyle():
-        pyfiles = ["snallygaster", "setup.py", *glob.glob("tests/*.py")]
+        pyfiles = ["snallygaster", *glob.glob("tests/*.py")]
         subprocess.run(["pycodestyle", "--ignore=W503", "--max-line-length=100",
                         *pyfiles], check=True)
         subprocess.run(["pyflakes", *pyfiles], check=True)

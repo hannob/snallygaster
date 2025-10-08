@@ -1,0 +1,40 @@
+[project]
+name = "snallygaster"
+version = "0.0.14"
+description = "Tool to scan for secret files on HTTP servers"
+readme = "README.md"
+authors = [{name = "Hanno Böck"}]
+classifiers=[
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: System Administrators",
+  "Natural Language :: English",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13"
+]
+license = "0BSD"
+    keywords = ["security", "vulnerability", "http"]
+requires-python = ">=3.9"
+dependencies = [
+  "dnspython",
+  "lxml",
+  "urllib3"
+]
+
+[tool.setuptools_scm]
+
+[tool.setuptools]
+script-files = ["snallygaster"]
+
+[project.urls]
+"Homepage" = "https://github.com/hannob/snallygaster"
+"Source" = "https://github.com/hannob/snallygaster"
+"Bug Tracker" = "https://github.com/hannob/snallygaster/issues"
+
+[build-system]
+requires = ["setuptools >= 61.0.0", "setuptools_scm"]
+build-backend = "setuptools.build_meta"

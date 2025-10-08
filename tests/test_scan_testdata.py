@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: 0BSD
+
 import http.server
 import os
 import ssl

@@ -1,0 +1,29 @@
+# last update: 2025-10-08
+# https://github.com/hannob/codingstyle
+---
+name: runpyci
+"on":
+  - pull_request
+  - push
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        python-version: [3.9, 3.x, 3.14]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }} ${{ matrix.os }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies and linters
+        run: |
+          [ -e requirements.txt ] && pip install -r requirements.txt
+          pip install pycodestyle pyupgrade pyflakes dlint pylint ruff
+      - name: Run tests
+        env:
+          RUN_ONLINETESTS: 1
+        run: |
+          ./runpyci.sh

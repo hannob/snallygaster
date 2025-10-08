@@ -46,6 +46,8 @@ Some Linux and BSD systems have snallygaster packaged:
 * [Arch Linux (git version)](https://aur.archlinux.org/packages/snallygaster-git/)
 * [openSUSE](https://software.opensuse.org/package/snallygaster)
 
+More at [Repology](https://repology.org/project/snallygaster/versions).
+
 faq
 ---
 

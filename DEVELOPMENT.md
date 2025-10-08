@@ -3,7 +3,7 @@ This file contains development notes for myself.
 How to make a new release
 =========================
 
-* raise version number in *setup.py*.
+* raise version number in *pyproject.toml*.
 * Tag it:
   ```
   git tag -a v0.0.x

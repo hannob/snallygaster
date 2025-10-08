@@ -2,7 +2,7 @@ import re
 import unittest
 
 
-class TestCodingstyle(unittest.TestCase):
+class TestDocs(unittest.TestCase):
     # checking if there is documentation for all snallygaster tests
     # in the TEST.md documentation
     def test_docs(self):

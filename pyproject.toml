@@ -1,6 +1,6 @@
 [project]
 name = "snallygaster"
-version = "0.0.14"
+version = "0.0.15"
 description = "Tool to scan for secret files on HTTP servers"
 readme = "README.md"
 authors = [{name = "Hanno Böck"}]

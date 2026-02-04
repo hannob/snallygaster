@@ -1,4 +1,5 @@
-# last update: 2025-10-08
+# SPDX-License-Identifier: 0BSD
+# last update: 2026-02-04
 # https://github.com/hannob/codingstyle
 ---
 name: runpyci
@@ -10,18 +11,18 @@ jobs:
   build:
     strategy:
       matrix:
-        python-version: [3.9, 3.x, 3.14]
+        python-version: [3.12, 3.x]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set up Python ${{ matrix.python-version }} ${{ matrix.os }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies and linters
         run: |
           [ -e requirements.txt ] && pip install -r requirements.txt
-          pip install pycodestyle pyupgrade pyflakes dlint pylint ruff
+          pip install dlint pycodestyle pyflakes pylint pyproject pyupgrade ruff
       - name: Run tests
         env:
           RUN_ONLINETESTS: 1

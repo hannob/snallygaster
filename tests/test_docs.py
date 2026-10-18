@@ -9,7 +9,7 @@ class TestDocs(unittest.TestCase):
     # in the TEST.md documentation
     def test_docs(self):
         f = open("snallygaster", encoding="utf-8")
-        funcs = re.findall("def test_([a-z_]*)", f.read())
+        funcs = re.findall(r"def test_([a-z_]*)", f.read())
         f.close()
         fd = open("TESTS.md", encoding="utf-8")
         docs = []

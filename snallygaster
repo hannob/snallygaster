@@ -355,7 +355,7 @@ def test_backupfiles(url):
 
 @DEFAULT
 def test_backup_archive(url):
-    apexhost = re.sub("^www.", "", re.sub("(.*//|/.*)", "", url))
+    apexhost = re.sub(r"^www.", "", re.sub(r"(.*//|/.*)", "", url))
     wwwhost = "www." + apexhost
 
     for fn in ["backup", "www", "wwwdata", "db", "htdocs", apexhost, wwwhost]:
@@ -366,7 +366,7 @@ def test_backup_archive(url):
         if r == b"\x1f\x8b\x08":
             pout("backup_archive", url + "/" + fn + ".tar.gz")
         r = fetchpartial(url + "/" + fn + ".tar.bz2", 3, binary=True)
-        if r in [b"BZh", b"BZ0"]:
+        if r in {b"BZh", b"BZ0"}:
             pout("backup_archive", url + "/" + fn + ".tar.bz2")
         r = fetchpartial(url + "/" + fn + ".tar.xz", 6, binary=True)
         if r == b"\xFD7zXZ\x00":
@@ -399,7 +399,7 @@ def test_sql_dump(url):
         if r == b"\x1f\x8b\x08":
             pout("sql_dump_gz", url + "/" + f + ".gz")
         r = fetchpartial(url + "/" + f + ".bz2", 3, binary=True)
-        if r in [b"BZh", b"BZ0"]:
+        if r in {b"BZh", b"BZ0"}:
             pout("sql_dump_bz", url + "/" + f + ".bz2")
         r = fetchpartial(url + "/" + f + ".xz", 6, binary=True)
         if r == b"\xFD7zXZ\x00":
@@ -440,9 +440,9 @@ def test_xaa(url):
         return
     # Check for signs of common compression formats (gz, bzip2, xz, zstd, zip).
     if (r[0:3] == b"\x1f\x8b\x08"
-            or r[0:3] in [b"BZh", b"BZ0"]
+            or r[0:3] in {b"BZh", b"BZ0"}
             or r[0:6] == b"\xFD7zXZ\x00"
-            or r[0:4] in [b"\x28\xB5\x2F\xFD", b"PK\x03\x04"]):
+            or r[0:4] in {b"\x28\xB5\x2F\xFD", b"PK\x03\x04"}):
         pout("xaa", url + "/xaa")
 
 
@@ -467,11 +467,11 @@ def test_optionsbleed(url):
         return
 
     z = [x.strip() for x in allow.split(",")]
-    if re.match("^[a-zA-Z-]*$", "".join(z)):
+    if re.match(r"^[a-zA-Z-]*$", "".join(z)):
         if len(z) > len(set(z)):
             pout("options_duplicates", url, escape(allow), noisymsg=True)
         return
-    if re.match("^[a-zA-Z- ]*$", allow):
+    if re.match(r"^[a-zA-Z- ]*$", allow):
         pout("options_spaces", url, escape(allow))
         return
     pout("optionsbleed", url, escape(allow))
@@ -479,7 +479,7 @@ def test_optionsbleed(url):
 
 @DEFAULT
 def test_privatekey(url):
-    hostkey = re.sub("^www.", "", re.sub("(.*//|/.*)", "", url)) + ".key"
+    hostkey = re.sub(r"^www.", "", re.sub(r"(.*//|/.*)", "", url)) + ".key"
     wwwkey = "www." + hostkey
     for fn in ["server.key", "privatekey.key", "myserver.key", "key.pem",
                hostkey, wwwkey]:
@@ -531,7 +531,7 @@ def test_invalidsrc(url):
             continue
         if domain is None:
             continue
-        if protocol not in ["https", "http"]:
+        if protocol not in {"https", "http"}:
             continue
 
         # We avoid double-checking multiple requests to the same host.
@@ -881,12 +881,12 @@ def test_drupal(url):
     r = fetcher(url + "/CHANGELOG.txt")
     try:
         if r != "":
-            result = re.findall("Drupal [0-9.]*", r)
+            result = re.findall(r"Drupal [0-9.]*", r)
             version = result[0][7:]
             pout("drupal", url, version)
         r = fetcher(url + "/core/CHANGELOG.txt")
         if r != "":
-            result = re.findall("Drupal [0-9.]*", r)
+            result = re.findall(r"Drupal [0-9.]*", r)
             version = result[0][7:]
             pout("drupal", url, version)
     except IndexError:
@@ -912,7 +912,7 @@ def test_mailman(url):
     murl = f"{url}/mailman/listinfo"
     r = fetcher(murl)
     if "Delivered by Mailman" in r:
-        ver = re.findall("version ([0-9.]+)", r)
+        ver = re.findall(r"version ([0-9.]+)", r)
         if len(ver) > 0:
             ver = ver[0]
         else:
@@ -1008,7 +1008,7 @@ else:
 urllib3.util.url.NORMALIZABLE_SCHEMES = ()
 
 if args.tests is None:
-    tests = [g for f, g in locals().items() if hasattr(g, "_is_default_test")]
+    tests = [g for g in locals().values() if hasattr(g, "_is_default_test")]
 else:
     tests = []
     try:
@@ -1019,7 +1019,7 @@ else:
         sys.exit(1)
 
 if args.info:
-    tests += [g for f, g in locals().items() if hasattr(g, "_is_info_test")]
+    tests += [g for g in locals().values() if hasattr(g, "_is_info_test")]
 
 path = args.path.rstrip("/")
 if path != "" and path[0] != "/":

@@ -1046,6 +1046,19 @@ for i, h in enumerate(hosts):
 
 pdebug(f"All hosts: {','.join(hosts)}")
 
+# Fail fast on a user-supplied hostname that cannot be resolved at all:
+# otherwise every test silently finds nothing and the report looks clean
+# (false negative). Only the hosts given on the command line are checked,
+# not the auto-added www. variants, which may legitimately not exist.
+# getaddrinfo is used because it is the same resolution the scanner
+# itself relies on when fetching pages.
+for h in hosts[:len(args.hosts)]:
+    try:
+        socket.getaddrinfo(h, None)
+    except socket.gaierror:
+        print(f"ERROR: Cannot resolve hostname {h}")
+        sys.exit(1)
+
 
 json_out = []
 for host in hosts:
